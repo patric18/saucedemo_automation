@@ -1,52 +1,47 @@
-from selenium.webdriver.common.by import By
-from pages.base_page import BasePage
+from pages.login_page import LoginPage
+from pages.inventory_page import InventoryPage
+from pages.cart_page import CartPage
+from pages.checkout_page import CheckoutPage
+from utils.data import USER, PASSWORD, VALID_CHECKOUT
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-class CheckoutPage(BasePage):
-    FIRST_NAME = (By.ID, "first-name")
-    LAST_NAME = (By.ID, "last-name")
-    POSTAL_CODE = (By.ID, "postal-code")
-    CONTINUE_BTN = (By.ID, "continue")
-    FINISH_BTN = (By.ID, "finish")
-    SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
-    STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
-    STEP_TWO_CONTAINER = (By.ID, "checkout_summary_container")
+def test_e2e_flow(driver):
+    login = LoginPage(driver)
+    inventory = InventoryPage(driver)
+    cart = CartPage(driver)
+    checkout = CheckoutPage(driver)
 
-    def fill_form(self, first, last, code):
-        self.type(self.FIRST_NAME, first)
-        self.type(self.LAST_NAME, last)
-        self.type(self.POSTAL_CODE, code)
+    login.open()
+    login.login(USER, PASSWORD)
+    assert inventory.is_loaded()
 
-    def continue_checkout(self):
-        self.click(self.CONTINUE_BTN)
-        WebDriverWait(self.driver, 30).until(
-            EC.presence_of_all_elements_located(self.STEP_TWO_CONTAINER)
-        )
+    inventory.add_products(1)
+    assert inventory.get_cart_count() == "1"
 
-    def finish(self):
-        self.click(self.FINISH_BTN)
-        WebDriverWait(self.driver, 20).until(
-            EC.presence_of_all_elements_located(self.SUCCESS_MSG)
-        )
+    inventory.go_to_cart()
 
-    def get_success_message(self):
-        return self.get_text(self.SUCCESS_MSG)
+    # Czekamy na obecność koszyka
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_all_elements_located((By.ID, "cart_contents_container"))
+    )
+    assert cart.is_loaded()
 
-    def is_step_one_loaded(self, timeout=30):
-        try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_all_elements_located(self.STEP_ONE_CONTAINER)
-            )
-            return True
-        except:
-            return False
+    cart.go_to_checkout()
 
-    def is_step_two_loaded(self, timeout=30):
-        try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_all_elements_located(self.STEP_TWO_CONTAINER)
-            )
-            return True
-        except:
-            return False
+    # Czekamy na checkout-step-one w DOM + URL
+    WebDriverWait(driver, 30).until(lambda d: "checkout-step-one" in d.current_url)
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_all_elements_located((By.ID, "checkout-info-container"))
+    )
+    assert checkout.is_step_one_loaded()
+
+    checkout.fill_form(*VALID_CHECKOUT)
+    checkout.continue_checkout()
+
+    assert checkout.is_step_two_loaded()
+
+    checkout.finish()
+
+    assert "Thank you for your order!" in checkout.get_success_message()
