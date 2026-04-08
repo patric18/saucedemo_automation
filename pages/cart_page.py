@@ -48,6 +48,14 @@ class CartPage(BasePage):
             for btn in buttons:
                 btn.click()
 
+    def is_loaded(self):
+        try:
+            self.wait_for_cart_loaded()
+            return True
+        except:
+            print("CartPage did not load:", self.driver.current_url)
+            return False
+        
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
 
     def is_step_one_loaded(self):
