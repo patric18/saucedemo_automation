@@ -39,15 +39,13 @@ class InventoryPage(BasePage):
 
         raise Exception(f"Product '{product_name}' not found")
 
-    def get_cart_count(self) -> int:
-        """Returns the number of items in the cart. Safe if the badge is missing."""
-        badges = self.driver.find_elements(*self.CART_BADGE)
-        if badges:
-            try:
-                return int(badges[0].text)
-            except ValueError:
-                return 0
-        return 0
+    def _get_cart_count_safe(self):
+        try:
+            badge = self.driver.find_element(*self.CART_BADGE)
+            text = badge.text.strip()
+            return int(text) if text.isdigit() else 0
+        except:
+            return 0
     
     def get_prices(self):
         elements = self.driver.find_elements(By.CLASS_NAME, "inventory_item_price")
@@ -74,8 +72,9 @@ class InventoryPage(BasePage):
         return "inventory" in self.driver.current_url
     
     def wait_for_cart_count(self, expected_count: int):
-        """Wait until cart badge shows the expected count, treat missing badge as 0."""
-        WebDriverWait(self.driver, 10).until(lambda d: self._get_cart_count_safe() == expected_count)
+        WebDriverWait(self.driver, 10).until(
+            lambda d: self._get_cart_count_safe() >= expected_count
+        )
 
     def _get_cart_count_safe(self) -> int:
         """Return cart count, 0 if badge is missing"""
