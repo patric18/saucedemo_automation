@@ -22,10 +22,10 @@ PERFORMANCE_USER = "performance_glitch_user"
 LOCKED_USER = "locked_out_user"
 
 INVALID_CHECKOUT = [
-    ("","Test","00-001", "First Name is required"),
-    ("Jan","","00-001", "Last Name is required"),
-    ("Jan","Test","", "Postal Code is required"),
-    ("","","", "First Name is required")
+    ("","Test","00-001", "Error: First Name is required"),
+    ("Jan","","00-001", "Error: Last Name is required"),
+    ("Jan","Test","", "Error: Postal Code is required"),
+    ("","","", "Error: First Name is required")
 ]
 
 VALID_CHECKOUT = ("Jan", "Test", "00-001")
