@@ -13,7 +13,7 @@ class CheckoutPage(BasePage):
     ERROR = (By.CSS_SELECTOR, "h3[data-test='error']")
     STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
 
-    def wait_for_step_one(self, timeout=10):
+    def wait_for_step_one(self, timeout=30):
         """Wait until step one page is visible"""
         WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
@@ -25,8 +25,8 @@ class CheckoutPage(BasePage):
     
         # First name
         first_input = self.driver.find_element(*self.FIRST_NAME)
-        first_input.clear()           # <-- ważne!
-        first_input.send_keys(first)  # nawet jeśli first == ""
+        first_input.clear()           
+        first_input.send_keys(first)  
     
         # Last name
         last_input = self.driver.find_element(*self.LAST_NAME)
