@@ -9,16 +9,13 @@ class InventoryPage(BasePage):
     CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
     CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
 
-    def add_products(self, count):
-        for _ in range(count):
-            btn = next(
-                b for b in self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
-                if b.text.lower() == "add to cart"
-            )
-            WebDriverWait(self.driver, 10).until(
-                lambda d: btn.is_enabled()
-            )
+    def add_products(self, count: int = 1):
+        buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
+        for i, btn in enumerate(buttons[:count]):
             btn.click()
+            # Wait for cart badge to update safely
+            self.wait_for_cart_count(i + 1)
+            
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
         # Wait until the page is fully loaded
@@ -77,7 +74,7 @@ class InventoryPage(BasePage):
         return "inventory" in self.driver.current_url
     
     def wait_for_cart_count(self, expected_count: int):
-        WebDriverWait(self.driver, 10).until(
-            lambda d: int(d.find_element(*self.CART_BADGE).text) == expected_count
-        )
+        """Wait until cart badge shows the expected count, treat missing badge as 0."""
+        WebDriverWait(self.driver, 10).until(lambda d: self._get_cart_count_safe() == expected_count)
+
         
