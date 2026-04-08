@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 class CheckoutPage(BasePage):
     FIRST_NAME = (By.ID, "first-name")
@@ -9,6 +11,13 @@ class CheckoutPage(BasePage):
     FINISH_BTN = (By.ID, "finish")
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
     ERROR = (By.CSS_SELECTOR, "h3[data-test='error']")
+    STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
+
+    def wait_for_step_one(self, timeout=10):
+        """Wait until step one page is visible"""
+        WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
+        )
 
     def fill_form(self, first, last, code):
         self.type(self.FIRST_NAME, first)
