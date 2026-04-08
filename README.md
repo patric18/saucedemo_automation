@@ -31,24 +31,6 @@ With **22 automated tests**, this suite ensures that the main flows of SauceDemo
 
 ---
 
-## Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/patric18/saucedemo_automation.git
-cd saucedemo_automation
-
-2. Install dependencies:
-pip install -r requirements.txt
-
-3. Running Tests
-Run all tests:
-python -m pytest -v --capture=tee-sys
-
-Run a specific test file:
-python -m pytest -v tests/login/test_login.py
-
 ## SCREENSHOTS
 
 Screenshots for failed tests are automatically saved in /screenshots. Browser options can be adjusted in conftest.py.
@@ -75,3 +57,21 @@ Integrate CI/CD using GitHub Actions
 Generate Allure or HTML reports for test results
 Add cross-browser and data-driven testing using parameterized tests
 Expand test coverage for more edge cases
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/patric18/saucedemo_automation.git
+cd saucedemo_automation
+
+2. Install dependencies:
+pip install -r requirements.txt
+
+3. Running Tests
+Run all tests:
+python -m pytest -v --capture=tee-sys
+
+Run a specific test file:
+python -m pytest -v tests/login/test_login.py
