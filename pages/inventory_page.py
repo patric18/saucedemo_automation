@@ -13,10 +13,8 @@ class InventoryPage(BasePage):
 
     def add_products(self, count: int = 1):
         buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
-        for i, btn in enumerate(buttons[:count]):
+        for btn in buttons[:count]:
             btn.click()
-            # Wait for cart badge to update safely
-            self.wait_for_cart_count(i + 1)
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""

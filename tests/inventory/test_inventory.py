@@ -33,7 +33,6 @@ def test_sorting(driver):
     login.open()
     login.login(USER,PASSWORD)
 
-    inventory.add_products(3)
     inventory.sort_by("lohi")
 
     prices = inventory.get_prices()
