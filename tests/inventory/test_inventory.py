@@ -21,3 +21,17 @@ def test_inventory_items_have_full_data(driver):
         assert name.text != ""
         assert price.text.startswith("$")
         assert img.get_attribute("src") != ""
+
+def test_sorting(driver):
+    login = LoginPage(driver)
+    inventory = InventoryPage(driver)
+
+    login.open()
+    login.login(USER,PASSWORD)
+
+    inventory.add_products(3)
+    inventory.sort_by("lohi")
+
+    prices = inventory.get_prices()
+    
+    assert prices == sorted(prices)        
