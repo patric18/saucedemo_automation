@@ -7,7 +7,8 @@ class CartPage(BasePage):
     CART_ITEMS = (By.CLASS_NAME, "cart_item")
     CHECKOUT_BTN = (By.ID, "checkout")
     CART_CONTAINER = (By.ID, "cart_contents_container")  # kontener koszyka
-
+    STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
+    
     def wait_for_cart_loaded(self, timeout=10):
         WebDriverWait(self.driver, timeout).until(
             lambda d: "/cart.html" in d.current_url
@@ -41,6 +42,7 @@ class CartPage(BasePage):
 
         # 🔥 wait a tiny moment (VERY important in CI)
         import time
+        #everything failed there is must have to use time.sleep()
         time.sleep(0.5)
 
         # 🔥 HARD click via JS ONLY (skip selenium click completely)
@@ -73,7 +75,7 @@ class CartPage(BasePage):
             print("CartPage did not load:", self.driver.current_url)
             return False
         
-    STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
+    
 
     def is_step_one_loaded(self):
         try:
@@ -81,7 +83,7 @@ class CartPage(BasePage):
                 lambda d: "checkout-step-one" in d.current_url
             )
             WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
+                EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
             )
             return True
         except:
