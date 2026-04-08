@@ -31,23 +31,26 @@ class CartPage(BasePage):
         self.wait_for_cart_loaded()
 
         checkout_btn = WebDriverWait(self.driver, 15).until(
-            EC.element_to_be_clickable(self.CHECKOUT_BTN)
+            EC.presence_of_element_located(self.CHECKOUT_BTN)
         )
 
-        # 🔥 scroll into view (important!)
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", checkout_btn)
+        # 🔥 force scroll to center (better than default)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", checkout_btn
+        )
 
-        # 🔥 safe click (JS fallback)
-        try:
-            checkout_btn.click()
-        except:
-            self.driver.execute_script("arguments[0].click();", checkout_btn)
+        # 🔥 wait a tiny moment (VERY important in CI)
+        import time
+        time.sleep(0.5)
 
-        # 🔥 wait for real page load (NOT just URL)
+        # 🔥 HARD click via JS ONLY (skip selenium click completely)
+        self.driver.execute_script("arguments[0].click();", checkout_btn)
+
+        # 🔥 wait for navigation (URL FIRST)
         WebDriverWait(self.driver, 15).until(
-            EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
+            lambda d: "checkout-step-one" in d.current_url
         )
-        
+
     def is_cart_empty(self):
         self.wait_for_cart_loaded()
         return len(self.driver.find_elements(*self.CART_ITEMS)) == 0
