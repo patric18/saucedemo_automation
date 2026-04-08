@@ -32,10 +32,22 @@ class CheckoutPage(BasePage):
         btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
-        # CI-safe click
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+
+        # Scroll to center
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", btn
+        )
+
+        # Tiny wait to ensure JS events attached
         import time; time.sleep(0.3)
+
+        # Hard JS click
         self.driver.execute_script("arguments[0].click();", btn)
+
+        # Wait for URL to change to step two
+        WebDriverWait(self.driver, 10).until(
+            lambda d: "checkout-step-two" in d.current_url
+        )
 
     def finish(self):
         self.click(self.FINISH_BTN)
@@ -68,3 +80,9 @@ class CheckoutPage(BasePage):
         except:
             print("FAILED STEP TWO, URL:", self.driver.current_url)
             return False
+    
+    def get_error(self):
+        try:
+            return self.get_text(self.ERROR)
+        except:
+            return ""

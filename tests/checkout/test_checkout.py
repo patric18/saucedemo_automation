@@ -2,7 +2,7 @@ from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
-from utils.data import USER, PASSWORD, INVALID_CHECKOUT
+from utils.data import USER, PASSWORD, INVALID_CHECKOUT, VALID_CHECKOUT
 import pytest
 
 def test_checkout_success(driver):
@@ -18,7 +18,7 @@ def test_checkout_success(driver):
     inventory.go_to_cart()
     cart.go_to_checkout()
 
-    checkout.fill_form("JAN", "Test", "00-001")
+    checkout.fill_form(*VALID_CHECKOUT)
     checkout.continue_checkout()
     checkout.finish()
 
