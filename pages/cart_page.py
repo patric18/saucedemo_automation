@@ -28,9 +28,11 @@ class CartPage(BasePage):
         return len(self.driver.find_elements(*self.CART_ITEMS))
 
     def go_to_checkout(self):
-        """Przejście do strony checkout."""
-        self.wait_for_cart_loaded()
         self.click(self.CHECKOUT_BTN)
+
+        WebDriverWait(self.driver, 15).until(
+            lambda d: "checkout-step-one" in d.current_url
+        )
 
     def is_cart_empty(self):
         self.wait_for_cart_loaded()
@@ -46,10 +48,17 @@ class CartPage(BasePage):
             for btn in buttons:
                 btn.click()
 
-    def is_loaded(self):
+    STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
+
+    def is_step_one_loaded(self):
         try:
-            self.wait_for_cart_loaded()
+            WebDriverWait(self.driver, 10).until(
+                lambda d: "checkout-step-one" in d.current_url
+            )
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
+            )
             return True
         except:
-            print("CartPage did not load:", self.driver.current_url)
+            print("FAILED STEP ONE, URL:", self.driver.current_url)
             return False
