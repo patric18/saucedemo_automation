@@ -1,3 +1,4 @@
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -15,7 +16,7 @@ class InventoryPage(BasePage):
             btn.click()
             # Wait for cart badge to update safely
             self.wait_for_cart_count(i + 1)
-            
+
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
         # Wait until the page is fully loaded
@@ -77,4 +78,11 @@ class InventoryPage(BasePage):
         """Wait until cart badge shows the expected count, treat missing badge as 0."""
         WebDriverWait(self.driver, 10).until(lambda d: self._get_cart_count_safe() == expected_count)
 
+    def _get_cart_count_safe(self) -> int:
+        """Return cart count, 0 if badge is missing"""
+        try:
+            badge = self.driver.find_element(*self.CART_BADGE)
+            return int(badge.text)
+        except (NoSuchElementException, ValueError):
+            return 0
         
