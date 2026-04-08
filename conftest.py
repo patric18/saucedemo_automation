@@ -27,18 +27,29 @@ def driver():
 
 @pytest.fixture
 def driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    options = Options()
+    
+    # Headless nowy tryb w Chrome >= 109
+    options.add_argument("--headless=new")  
     options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-
-    service = Service(ChromeDriverManager().install())  # <--- używamy Service
-    driver = webdriver.Chrome(service=service, options=options)  # <--- podajemy service i options
+    options.add_argument("--window-size=1920,1080")  # rozmiar okna
+    options.add_argument("--no-sandbox")  # CI wymaga
+    options.add_argument("--disable-dev-shm-usage")  # CI docker
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-extensions")
+    
+    # jeśli chcesz logi w Chrome
+    # options.add_argument("--enable-logging")
+    # options.add_argument("--v=1")
+    
+    driver = webdriver.Chrome(options=options)
+    
+    # globalny wait dla BasePage
+    driver.implicitly_wait(5)  # minimalny implicit wait
+    
     yield driver
     driver.quit()
-
+    
 # screenshot on fail
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
