@@ -32,14 +32,13 @@ jobs:
         name: allure-results
         path: allure-results
 
-    - name: Generate Allure Report
-      uses: simple-elf/allure-report-action@v1
-      with:
-        allure_results: allure-results
-        allure_report: allure-report
+    #- name: Generate Allure Report
+    #  with:
+    #    allure_results: allure-results
+    #    allure_report: allure-report
 
-    - name: Deploy report to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: allure-report
+    #- name: Deploy report to GitHub Pages
+    #  uses: peaceiris/actions-gh-pages@v3
+    #  with:
+    #    github_token: ${{ secrets.GITHUB_TOKEN }}
+    #    publish_dir: allure-report
