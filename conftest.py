@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import prefs
 
+@pytest.fixture
 def init_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")  # bez okna
