@@ -1,8 +1,3 @@
-from pages.login_page import LoginPage
-from pages.inventory_page import InventoryPage
-from pages.cart_page import CartPage
-from pages.checkout_page import CheckoutPage
-from utils.data import USER, PASSWORD, VALID_CHECKOUT
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -23,20 +18,28 @@ def test_e2e_flow(driver):
 
     inventory.go_to_cart()
 
-    # Stabilne czekanie na załadowanie koszyka w CI/CD
+    # Stabilne czekanie na kontener koszyka
     WebDriverWait(driver, 20).until(
         EC.visibility_of_element_located((By.ID, "cart_contents_container"))
     )
     assert cart.is_loaded(), "CartPage did not load properly after going to cart"
 
     cart.go_to_checkout()
-    
-    assert checkout.is_step_one_loaded()
+
+    # NOWE: czekaj aż URL checkout-step-one będzie załadowany i kontener step 1 widoczny
+    WebDriverWait(driver, 30).until(
+        lambda d: "checkout-step-one" in d.current_url
+    )
+    WebDriverWait(driver, 30).until(
+        EC.visibility_of_element_located((By.ID, "checkout-info-container"))
+    )
+
+    assert checkout.is_step_one_loaded(timeout=30), "Checkout Step 1 did not load in time"
 
     checkout.fill_form(*VALID_CHECKOUT)
     checkout.continue_checkout()
 
-    assert checkout.is_step_two_loaded()
+    assert checkout.is_step_two_loaded(timeout=30), "Checkout Step 2 did not load in time"
 
     checkout.finish()
 

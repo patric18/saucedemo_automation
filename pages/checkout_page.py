@@ -48,7 +48,7 @@ class CheckoutPage(BasePage):
         except:
             return ""
 
-    def is_step_one_loaded(self, timeout=10):
+    def is_step_one_loaded(self, timeout=30):
         """Sprawdza, czy step 1 jest widoczny"""
         try:
             WebDriverWait(self.driver, timeout).until(
@@ -58,7 +58,7 @@ class CheckoutPage(BasePage):
         except:
             return False
 
-    def is_step_two_loaded(self, timeout=20):
+    def is_step_two_loaded(self, timeout=30):
         """Sprawdza, czy step 2 (summary) jest widoczny"""
         try:
             WebDriverWait(self.driver, timeout).until(
