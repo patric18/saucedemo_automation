@@ -9,6 +9,7 @@ class InventoryPage(BasePage):
     PRODUCTS = (By.CLASS_NAME, "inventory_item")
     CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
     CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
+    PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count: int = 1):
         buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
