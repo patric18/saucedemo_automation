@@ -12,13 +12,13 @@ class CheckoutPage(BasePage):
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
     ERROR = (By.CSS_SELECTOR, "h3[data-test='error']")
     STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
+    STEP_TWO_CONTAINER = (By.ID, "checkout_summary_container")  # element step 2
 
     def wait_for_step_one(self, timeout=10):
         """Wait until step one page is visible"""
         WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
         )
-        
 
     def fill_form(self, first, last, code):
         self.type(self.FIRST_NAME, first)
@@ -27,21 +27,44 @@ class CheckoutPage(BasePage):
 
     def continue_checkout(self):
         self.click(self.CONTINUE_BTN)
+        # czekaj aż krok 2 będzie widoczny (ważne w CI/CD)
+        WebDriverWait(self.driver, 20).until(
+            EC.visibility_of_element_located(self.STEP_TWO_CONTAINER)
+        )
 
     def finish(self):
         self.click(self.FINISH_BTN)
+        # czekaj aż pojawi się komunikat sukcesu
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.SUCCESS_MSG)
+        )
 
     def get_success_message(self):
         return self.get_text(self.SUCCESS_MSG)
-    
+
     def get_error(self):
         try:
             return self.get_text(self.ERROR)
         except:
             return ""
-        
-    def is_step_one_loaded(self):
-        return "checkout-step-one" in self.driver.current_url    
-    
-    def is_step_two_loaded(self):
-        return "checkout-step-two" in self.driver.current_url   
+
+    def is_step_one_loaded(self, timeout=10):
+        """Sprawdza, czy step 1 jest widoczny"""
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
+            )
+            return True
+        except:
+            return False
+
+    def is_step_two_loaded(self, timeout=20):
+        """Sprawdza, czy step 2 (summary) jest widoczny"""
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                EC.visibility_of_element_located(self.STEP_TWO_CONTAINER)
+            )
+            return True
+        except Exception as e:
+            print("Checkout step 2 did not load:", e)
+            return False
