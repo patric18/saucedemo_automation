@@ -29,9 +29,9 @@ def test_e2e_flow(driver):
     assert inventory.is_loaded()
 
     # Dodaj produkt
-    inventory.add_products(3)
-    inventory.wait_for_cart_count(3)
-    assert inventory.get_cart_count() == 3
+    inventory.add_products(2)
+    inventory.wait_for_cart_count(2)
+    assert inventory.get_cart_count() == 2
 
     # Przejdź do koszyka
     inventory.go_to_cart()
