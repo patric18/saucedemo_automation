@@ -6,7 +6,7 @@ from utils.data import USER, PASSWORD, INVALID_USERS, LOCKED_USER, PERFORMANCE_U
 
 class TestLogin:
 
-    @allure.tittle("Login with valid credentials")
+    @allure.title("Login with valid credentials")
     def test_login_valid(self,driver):
         login = LoginPage(driver)
         login.open()
