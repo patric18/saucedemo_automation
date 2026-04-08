@@ -41,7 +41,7 @@ def test_checkout_missing_data(driver,firstname,lastname,postalcode,error):
     checkout.fill_form(firstname,lastname,postalcode)
     checkout.continue_checkout()
 
-#   assert error in checkout.get_error()
+    assert error in checkout.get_error()
 
-    error_message = checkout.get_error()
-    assert error in error_message, f"Expected error '{error}' but got '{error_message}'"
+    #error_message = checkout.get_error()
+    #assert error in error_message, f"Expected error '{error}' but got '{error_message}'"
