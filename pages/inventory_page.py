@@ -10,15 +10,15 @@ class InventoryPage(BasePage):
     CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
 
     def add_products(self, count):
-        for i in range(count):
-            buttons = self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
-        
-            btn = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable(buttons[i])
+        for _ in range(count):
+            btn = next(
+                b for b in self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
+                if b.text.lower() == "add to cart"
             )
-        
+            WebDriverWait(self.driver, 10).until(
+                lambda d: btn.is_enabled()
+            )
             btn.click()
-
     def go_to_cart(self):
         self.click(self.CART_LINK)
 
