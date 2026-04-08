@@ -9,10 +9,17 @@ class CartPage(BasePage):
     CART_CONTAINER = (By.ID, "cart_contents_container")  # kontener koszyka
 
     def wait_for_cart_loaded(self, timeout=20):
-        """Czeka, aż koszyk będzie widoczny."""
+        """Czeka, aż kontener koszyka będzie widoczny."""
         WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(self.CART_CONTAINER)
         )
+
+    def wait_for_page_loaded(self, timeout=20):
+        """Czeka aż URL będzie '/cart.html' i kontener koszyka będzie widoczny."""
+        WebDriverWait(self.driver, timeout).until(
+            lambda d: "/cart.html" in d.current_url
+        )
+        self.wait_for_cart_loaded(timeout=timeout)
 
     def get_items_count(self):
         """Zwraca liczbę produktów w koszyku."""
@@ -30,7 +37,7 @@ class CartPage(BasePage):
         return len(self.driver.find_elements(*self.CART_ITEMS)) == 0
 
     def remove_all_products(self):
-        """Usuwa wszystkie produkty z koszyka."""
+        """Usuwa wszystkie produkty z koszyka, dynamicznie pobierając przyciski."""
         self.wait_for_cart_loaded()
         while True:
             buttons = self.driver.find_elements(By.XPATH, "//button[text()='Remove']")
@@ -40,9 +47,9 @@ class CartPage(BasePage):
                 btn.click()
 
     def is_loaded(self):
-        """Sprawdza, czy strona koszyka jest załadowana."""
+        """Sprawdza, czy strona koszyka jest w pełni załadowana."""
         try:
-            self.wait_for_cart_loaded()
+            self.wait_for_page_loaded()
             return True
         except Exception as e:
             print("CartPage did not load:", e)

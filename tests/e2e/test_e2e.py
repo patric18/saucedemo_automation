@@ -3,6 +3,7 @@ from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 from utils.data import USER, PASSWORD, VALID_CHECKOUT
+from selenium.webdriver.support.ui import WebDriverWait
 
 def test_e2e_flow(driver):
     login = LoginPage(driver)
@@ -20,8 +21,9 @@ def test_e2e_flow(driver):
 
     inventory.go_to_cart()
 
-    # dodatkowe oczekiwanie na ładowanie w CI
-    assert cart.is_loaded(), "CartPage did not load properly"
+    # dodatkowe czekanie na URL + kontener dla CI/CD
+    WebDriverWait(driver, 10).until(lambda d: "/cart.html" in d.current_url)
+    assert cart.is_loaded(), "CartPage did not load properly after going to cart"
 
     cart.go_to_checkout()
     
