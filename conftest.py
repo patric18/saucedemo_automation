@@ -5,6 +5,7 @@ from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import prefs
+from selenium.webdriver.chrome.service import Service
 
 
 """ Chrome setups 
