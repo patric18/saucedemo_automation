@@ -6,6 +6,16 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import prefs
 
+def init_driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # bez okna
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    return driver
+
+
 @pytest.fixture
 def driver():
     opts = Options()
