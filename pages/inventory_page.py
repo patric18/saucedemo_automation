@@ -44,11 +44,7 @@ class InventoryPage(BasePage):
         raise Exception(f"Product '{product_name}' not found")
 
     def get_cart_count(self):
-        try:
-            text = self.get_text(self.CART_BADGE)
-            return int(text)
-        except:
-            return 0
+        return self.get_text(self.CART_BADGE)
     
     def get_prices(self):
         elements = self.driver.find_elements(By.CLASS_NAME, "inventory_item_price")
