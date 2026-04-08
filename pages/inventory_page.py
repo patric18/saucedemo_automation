@@ -11,14 +11,19 @@ class InventoryPage(BasePage):
 
     def add_products(self, count):
         for _ in range(count):
+        # wybierz pierwszy przycisk "Add to cart"
             btn = next(
                 b for b in self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
                 if b.text.lower() == "add to cart"
             )
-            WebDriverWait(self.driver, 10).until(
-                lambda d: btn.is_enabled()
-            )
+        # kliknij
             btn.click()
+
+        # poczekaj aż badge zaktualizuje się o jeden element
+            WebDriverWait(self.driver, 5).until(
+                lambda d: int(self.get_cart_count()) >= _ + 1
+            )
+    
     def go_to_cart(self):
         self.click(self.CART_LINK)
 
@@ -39,7 +44,11 @@ class InventoryPage(BasePage):
         raise Exception(f"Product '{product_name}' not found")
 
     def get_cart_count(self):
-        return self.get_text(self.CART_BADGE)
+        try:
+            text = self.get_text(self.CART_BADGE)
+            return int(text)
+        except:
+            return 0
     
     def get_prices(self):
         elements = self.driver.find_elements(By.CLASS_NAME, "inventory_item_price")
