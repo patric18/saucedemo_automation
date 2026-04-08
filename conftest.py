@@ -9,12 +9,15 @@ import prefs
 @pytest.fixture
 def init_driver():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # bez okna
+    options.add_argument("--headless")  
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
 
     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    return driver
+    yield driver
+    driver.quit()
 
 
 
@@ -26,8 +29,7 @@ def pytest_runtest_makereport(item, call):
     report = outcome.get_result()
 
     if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
-
+        driver = item.funcargs.get("init_driver")  # <--- tu poprawka
         if driver:
             os.makedirs("screenshots", exist_ok=True)
             file_name = f"{item.name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
