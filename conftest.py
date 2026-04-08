@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import prefs
 
 
-
+""" Chrome setups 
 @pytest.fixture
 def driver():
     opts = Options()
@@ -19,6 +19,22 @@ def driver():
     #driver = webdriver.Chrome(service=Service, options=chrome_options(ChromeDriverManager().install()))
     driver = webdriver.Chrome(options=opts)
     driver.maximize_window()
+    yield driver
+    driver.quit()
+
+"""
+
+@pytest.fixture
+def driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+
+    service = Service(ChromeDriverManager().install())  # <--- używamy Service
+    driver = webdriver.Chrome(service=service, options=options)  # <--- podajemy service i options
     yield driver
     driver.quit()
 
@@ -35,16 +51,4 @@ def pytest_runtest_makereport(item, call):
             os.makedirs("screenshots", exist_ok=True)
             file_name = f"{item.name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
             driver.save_screenshot(f"screenshots/{file_name}")
-"""@pytest.fixture
-def driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
 
-    service = Service(ChromeDriverManager().install())  # <--- używamy Service
-    driver = webdriver.Chrome(service=service, options=options)  # <--- podajemy service i options
-    yield driver
-    driver.quit()"""
