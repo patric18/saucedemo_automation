@@ -8,7 +8,7 @@ class CartPage(BasePage):
     CHECKOUT_BTN = (By.ID, "checkout")
     CART_CONTAINER = (By.ID, "cart_contents_container")  # kontener koszyka
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
-    
+
     def wait_for_cart_loaded(self, timeout=10):
         WebDriverWait(self.driver, timeout).until(
             lambda d: "/cart.html" in d.current_url
@@ -77,17 +77,6 @@ class CartPage(BasePage):
         
     
 
-    def is_step_one_loaded(self):
-        try:
-            WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-one" in d.current_url
-            )
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
-            )
-            return True
-        except:
-            print("FAILED STEP ONE, URL:", self.driver.current_url)
-            return False
+    
     
     

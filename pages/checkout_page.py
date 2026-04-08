@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 class CheckoutPage(BasePage):
-    STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
+    STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
     STEP_TWO_CONTAINER = (By.ID, "checkout_summary_container")
     FIRST_NAME = (By.ID, "first-name")
     LAST_NAME = (By.ID, "last-name")
@@ -39,9 +39,15 @@ class CheckoutPage(BasePage):
 
     def is_step_one_loaded(self):
         try:
-            self.wait_for_step_one()
+            WebDriverWait(self.driver, 10).until(
+                lambda d: "checkout-step-one" in d.current_url
+            )
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
+            )
             return True
         except:
+            print("FAILED STEP ONE, URL:", self.driver.current_url)
             return False
 
     def is_step_two_loaded(self):
