@@ -2,9 +2,8 @@ from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
-from utils.data import USER, PASSWORD
+from utils.data import USER, PASSWORD, INVALID_CHECKOUT
 import pytest
-from utils.data import INVALID_CHECKOUT
 
 def test_checkout_success(driver):
     login = LoginPage(driver)

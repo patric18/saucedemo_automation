@@ -20,7 +20,6 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, first, last, code):
-        self.wait_for_step_one()
         self.type(self.FIRST_NAME, first)
         self.type(self.LAST_NAME, last)
         self.type(self.POSTAL_CODE, code)
