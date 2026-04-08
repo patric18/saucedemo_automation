@@ -20,9 +20,24 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, first, last, code):
-        self.type(self.FIRST_NAME, first)
-        self.type(self.LAST_NAME, last)
-        self.type(self.POSTAL_CODE, code)
+        
+        self.wait.until(EC.visibility_of_element_located(self.FIRST_NAME))
+    
+        # First name
+        first_input = self.driver.find_element(*self.FIRST_NAME)
+        first_input.clear()           # <-- ważne!
+        first_input.send_keys(first)  # nawet jeśli first == ""
+    
+        # Last name
+        last_input = self.driver.find_element(*self.LAST_NAME)
+        last_input.clear()
+        last_input.send_keys(last)
+    
+        # Postal code
+        postal_input = self.driver.find_element(*self.POSTAL_CODE)
+        postal_input.clear()
+        postal_input.send_keys(code)    
+
 
     def continue_checkout(self):
         self.click(self.CONTINUE_BTN)
@@ -44,3 +59,11 @@ class CheckoutPage(BasePage):
     
     def is_step_two_loaded(self):
         return "checkout-step-two" in self.driver.current_url   
+    
+
+
+"""
+    def fill_form(self, first, last, code):
+        self.type(self.FIRST_NAME, first)
+        self.type(self.LAST_NAME, last)
+        self.type(self.POSTAL_CODE, code)"""
