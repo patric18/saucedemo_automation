@@ -20,11 +20,15 @@ class InventoryPage(BasePage):
             )
             btn.click()
     def go_to_cart(self):
-        self.click(self.CART_LINK)
-
+        """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
+        # Wait until the page is fully loaded
         WebDriverWait(self.driver, 10).until(
-            lambda d: "/cart.html" in d.current_url
-        )        
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+        # Find the cart icon
+        cart_icon = self.driver.find_element(*self.CART_ICON)
+        # Click using JavaScript to avoid element not clickable issues
+        self.driver.execute_script("arguments[0].click();", cart_icon)
 
     def remove_product_by_name(self, product_name):
         products = self.find_all(self.PRODUCTS)
@@ -39,6 +43,7 @@ class InventoryPage(BasePage):
         raise Exception(f"Product '{product_name}' not found")
 
     def get_cart_count(self) -> int:
+        """Returns the number of items in the cart. Safe if the badge is missing."""
         badges = self.driver.find_elements(*self.CART_BADGE)
         if badges:
             try:
