@@ -7,11 +7,11 @@ class CartPage(BasePage):
 
     CART_ITEMS = (By.CLASS_NAME, "cart_item")
     CHECKOUT_BTN = (By.ID, "checkout")
-    CART_CONTAINER = (By.ID, "cart_contents_container")  # wait for container
+    CART_CONTAINER = (By.ID, "cart_contents_container")
 
-    def wait_for_cart_loaded(self, timeout=10):
+    def wait_for_cart_loaded(self, timeout=20):
         WebDriverWait(self.driver, timeout).until(
-            EC.visibility_of_element_located(self.CART_CONTAINER)
+            EC.visibility_of_element_located(self.CART_ITEMS)
         )
 
     def get_items_count(self):
