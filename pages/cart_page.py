@@ -28,8 +28,18 @@ class CartPage(BasePage):
         return len(self.driver.find_elements(*self.CART_ITEMS))
 
     def go_to_checkout(self):
-        self.click(self.CHECKOUT_BTN)
+        # 1. Wait for cart page to load
+        self.wait_for_cart_loaded()
 
+        # 2. Wait for checkout button to be clickable
+        checkout_btn = WebDriverWait(self.driver, 15).until(
+            EC.element_to_be_clickable(self.CHECKOUT_BTN)
+        )
+
+        # 3. Click checkout
+        checkout_btn.click()
+
+        # 4. Wait until step one page is loaded
         WebDriverWait(self.driver, 15).until(
             lambda d: "checkout-step-one" in d.current_url
         )
