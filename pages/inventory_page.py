@@ -11,19 +11,14 @@ class InventoryPage(BasePage):
 
     def add_products(self, count):
         for _ in range(count):
-        # wybierz pierwszy przycisk "Add to cart"
             btn = next(
                 b for b in self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
                 if b.text.lower() == "add to cart"
             )
-        # kliknij
-            btn.click()
-
-        # poczekaj aż badge zaktualizuje się o jeden element
-            WebDriverWait(self.driver, 5).until(
-                lambda d: int(self.get_cart_count()) >= _ + 1
+            WebDriverWait(self.driver, 10).until(
+                lambda d: btn.is_enabled()
             )
-    
+            btn.click()
     def go_to_cart(self):
         self.click(self.CART_LINK)
 
