@@ -4,7 +4,6 @@ from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 from utils.data import USER, PASSWORD, VALID_CHECKOUT
 
-
 def test_e2e_flow(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
@@ -21,7 +20,8 @@ def test_e2e_flow(driver):
 
     inventory.go_to_cart()
 
-    assert cart.is_loaded()
+    # dodatkowe oczekiwanie na ładowanie w CI
+    assert cart.is_loaded(), "CartPage did not load properly"
 
     cart.go_to_checkout()
     
