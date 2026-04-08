@@ -12,6 +12,9 @@ def test_e2e_flow(driver):
     inventory = InventoryPage(driver)
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+    driver.get("https://www.saucedemo.com/")
 
     # Login
     login.open()
