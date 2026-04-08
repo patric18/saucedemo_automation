@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 def test_e2e_flow(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
-    assert inventory.get_cart_count() == 0
+    
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
 
@@ -20,6 +20,8 @@ def test_e2e_flow(driver):
     driver.execute_script("window.localStorage.clear();")
     driver.execute_script("window.sessionStorage.clear();")
     driver.get("https://www.saucedemo.com/")
+
+    assert inventory.get_cart_count() == 0
     
 
     # Login

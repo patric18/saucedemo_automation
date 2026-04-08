@@ -10,12 +10,7 @@ def test_inventory_items_have_full_data(driver):
     inventory = InventoryPage(driver)
     cart = CartPage(driver)
 
-    # wyczyść koszyk / localStorage
-    driver.get("https://www.saucedemo.com/cart.html")
-    cart.remove_all_products()
-    driver.execute_script("window.localStorage.clear();")
-    driver.execute_script("window.sessionStorage.clear();")
-    driver.get("https://www.saucedemo.com/")
+    
 
     login.open()
     login.login(USER,PASSWORD)
