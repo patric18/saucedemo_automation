@@ -24,9 +24,9 @@ def test_remove_from_empty_cart(driver):
         login.open()
         login.login(USER,PASSWORD)
 
-        assert cart.is_cart_empty()
-
         inventory.go_to_cart()
+
+        assert cart.is_cart_empty()
 
         cart.remove_all_products()
 

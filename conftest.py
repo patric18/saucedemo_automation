@@ -45,7 +45,7 @@ def driver():
     driver = webdriver.Chrome(options=options)
     
     # globalny wait dla BasePage
-    driver.implicitly_wait(5)  # minimalny implicit wait
+    driver.implicitly_wait(15)  # minimalny implicit wait
     
     yield driver
     driver.quit()
