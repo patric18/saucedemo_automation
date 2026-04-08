@@ -1,5 +1,6 @@
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
+from pages.cart_page import CartPage
 from utils.data import USER, PASSWORD
 from selenium.webdriver.common.by import By
 
@@ -7,6 +8,14 @@ from selenium.webdriver.common.by import By
 def test_inventory_items_have_full_data(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
+    cart = CartPage(driver)
+
+    # wyczyść koszyk / localStorage
+    driver.get("https://www.saucedemo.com/cart.html")
+    cart.remove_all_products()
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+    driver.get("https://www.saucedemo.com/")
 
     login.open()
     login.login(USER,PASSWORD)

@@ -13,6 +13,13 @@ def test_e2e_flow(driver):
     assert inventory.get_cart_count() == 0
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
+
+    # wyczyść koszyk / localStorage
+    driver.get("https://www.saucedemo.com/cart.html")
+    cart.remove_all_products()
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+    driver.get("https://www.saucedemo.com/")
     
 
     # Login
