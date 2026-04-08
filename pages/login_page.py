@@ -18,4 +18,10 @@ class LoginPage(BasePage):
         self.click(self.LOGIN_BTN)
     
     def get_error(self):
-        return self.get_text(self.ERROR)
+        try:
+            return self.get_text(self.ERROR)
+        except:
+            return ""
+    
+    def is_logged_in(self):
+        return "inventory" in self.driver.current_url

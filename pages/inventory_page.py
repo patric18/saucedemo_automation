@@ -52,4 +52,7 @@ class InventoryPage(BasePage):
 
     def get_all_products(self):
         return self.driver.find_elements(*self.PRODUCTS)    
+    
+    def is_loaded(self):
+        return "inventory" in self.driver.current_url
         

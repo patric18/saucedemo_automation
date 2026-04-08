@@ -3,6 +3,8 @@ from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 from utils.data import USER, PASSWORD
+import pytest
+from utils.data import INVALID_CHECKOUT
 
 def test_checkout_success(driver):
     login = LoginPage(driver)
@@ -23,7 +25,8 @@ def test_checkout_success(driver):
 
     assert "THANK YOU" in checkout.get_success_message().upper()
 
-def test_checkout_missing_data(driver):
+@pytest.mark.parametrize("firstname,lastname,postalcode,error", INVALID_CHECKOUT)
+def test_checkout_missing_data(driver,firstname,lastname,postalcode,error):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
     cart = CartPage(driver)
@@ -36,7 +39,7 @@ def test_checkout_missing_data(driver):
     inventory.go_to_cart()
     cart.go_to_checkout()
 
-    checkout.fill_form("", "Test", "00-001")
+    checkout.fill_form(firstname,lastname,postalcode)
     checkout.continue_checkout()
 
-    assert "First Name is required" in checkout.get_error()
+    assert error in checkout.get_error()

@@ -19,3 +19,6 @@ class CartPage(BasePage):
         buttons = self.get_remove_buttons()
         for btn in buttons:
             btn.click()
+
+    def is_loaded(self):
+        return "cart" in self.driver.current_url            

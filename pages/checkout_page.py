@@ -25,4 +25,13 @@ class CheckoutPage(BasePage):
         return self.get_text(self.SUCCESS_MSG)
     
     def get_error(self):
-        return self.get_text(self.ERROR)
+        try:
+            return self.get_text(self.ERROR)
+        except:
+            return ""
+        
+    def is_step_one_loaded(self):
+        return "checkout-step-one" in self.driver.current_url    
+    
+    def is_step_two_loaded(self):
+        return "checkout-step-two" in self.driver.current_url   
