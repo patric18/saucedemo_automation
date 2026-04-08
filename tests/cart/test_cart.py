@@ -14,7 +14,7 @@ def test_add_to_cart(driver):
     inventory.add_products(2)
     #inventory.go_to_cart()
 
-    assert inventory.get_items_count() == "2"
+    assert inventory.get_items_count() == 2
 
 def test_remove_from_empty_cart(driver):
         login = LoginPage(driver)

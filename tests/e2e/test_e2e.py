@@ -20,13 +20,13 @@ def test_e2e_flow(driver):
 
     # Dodaj produkt
     inventory.add_products(3)
-    assert inventory.get_cart_count() == "3"
+    assert inventory.get_cart_count() == 3
 
     # Przejdź do koszyka
     inventory.go_to_cart()
     print("URL AFTER CLICK:", driver.current_url)
     assert cart.is_loaded()
-    assert cart.get_items_count() == "3"
+    assert cart.get_items_count() == 3
 
     # Checkout
     cart.go_to_checkout()
