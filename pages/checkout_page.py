@@ -4,14 +4,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 class CheckoutPage(BasePage):
+    STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
+    STEP_TWO_CONTAINER = (By.ID, "checkout_summary_container")
     FIRST_NAME = (By.ID, "first-name")
     LAST_NAME = (By.ID, "last-name")
     POSTAL_CODE = (By.ID, "postal-code")
     CONTINUE_BTN = (By.ID, "continue")
     FINISH_BTN = (By.ID, "finish")
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
-    STEP_ONE_CONTAINER = (By.ID, "checkout-info-container")
-    STEP_TWO_CONTAINER = (By.ID, "checkout_summary_container")
+
+    def wait_for_step_one(self, timeout=45):
+        WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
+        )
+
+    def wait_for_step_two(self, timeout=45):
+        WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
+        )
 
     def fill_form(self, first, last, code):
         self.type(self.FIRST_NAME, first)
@@ -20,33 +30,23 @@ class CheckoutPage(BasePage):
 
     def continue_checkout(self):
         self.click(self.CONTINUE_BTN)
-        WebDriverWait(self.driver, 30).until(
-            EC.presence_of_all_elements_located(self.STEP_TWO_CONTAINER)
-        )
 
     def finish(self):
         self.click(self.FINISH_BTN)
-        WebDriverWait(self.driver, 20).until(
-            EC.presence_of_all_elements_located(self.SUCCESS_MSG)
-        )
 
     def get_success_message(self):
         return self.get_text(self.SUCCESS_MSG)
 
-    def is_step_one_loaded(self, timeout=30):
+    def is_step_one_loaded(self):
         try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_all_elements_located(self.STEP_ONE_CONTAINER)
-            )
+            self.wait_for_step_one()
             return True
         except:
             return False
 
-    def is_step_two_loaded(self, timeout=30):
+    def is_step_two_loaded(self):
         try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_all_elements_located(self.STEP_TWO_CONTAINER)
-            )
+            self.wait_for_step_two()
             return True
         except:
             return False
