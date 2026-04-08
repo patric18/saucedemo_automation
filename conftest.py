@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import prefs
 
 @pytest.fixture
-def init_driver():
+def driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")  
     options.add_argument("--no-sandbox")
@@ -29,7 +29,8 @@ def pytest_runtest_makereport(item, call):
     report = outcome.get_result()
 
     if report.when == "call" and report.failed:
-        driver = item.funcargs.get("init_driver")  # <--- tu poprawka
+        driver = item.funcargs.get("driver")
+
         if driver:
             os.makedirs("screenshots", exist_ok=True)
             file_name = f"{item.name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
