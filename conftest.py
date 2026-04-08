@@ -16,19 +16,7 @@ def init_driver():
     return driver
 
 
-@pytest.fixture
-def driver():
-    opts = Options()
-    opts.add_experimental_option("prefs",{
-        "credentials_ennable_service": False,
-        "profile.password_manager_enabled": False,
-        "profile.password_manager_leak_detection": False
-    })
-    #driver = webdriver.Chrome(service=Service, options=chrome_options(ChromeDriverManager().install()))
-    driver = webdriver.Chrome(options=opts)
-    driver.maximize_window()
-    yield driver
-    driver.quit()
+
 
 # screenshot on fail
 @pytest.hookimpl(hookwrapper=True)
