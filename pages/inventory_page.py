@@ -26,7 +26,7 @@ class InventoryPage(BasePage):
             lambda d: d.execute_script("return document.readyState") == "complete"
         )
         # Find the cart icon
-        cart_icon = self.driver.find_element(*self.CART_ICON)
+        cart_icon = self.driver.find_element(*self.CART_LINK)
         # Click using JavaScript to avoid element not clickable issues
         self.driver.execute_script("arguments[0].click();", cart_icon)
 
