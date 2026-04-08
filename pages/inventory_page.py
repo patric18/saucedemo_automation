@@ -75,4 +75,9 @@ class InventoryPage(BasePage):
     
     def is_loaded(self):
         return "inventory" in self.driver.current_url
+    
+    def wait_for_cart_count(self, expected_count: int):
+        WebDriverWait(self.driver, 10).until(
+            lambda d: int(d.find_element(*self.CART_BADGE).text) == expected_count
+        )
         

@@ -70,3 +70,5 @@ class CartPage(BasePage):
         except:
             print("FAILED STEP ONE, URL:", self.driver.current_url)
             return False
+    
+    
