@@ -20,7 +20,11 @@ class InventoryPage(BasePage):
             btn.click()
 
     def go_to_cart(self):
-        self.click(self.CART_LINK)        
+        self.click(self.CART_LINK)
+
+        WebDriverWait(self.driver, 10).until(
+            lambda d: "/cart.html" in d.current_url
+        )        
 
     def remove_product_by_name(self, product_name):
         products = self.find_all(self.PRODUCTS)
