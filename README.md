@@ -1,3 +1,5 @@
+![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml/badge.svg)
+
 # SauceDemo Automation
 
 > Automated testing framework for the SauceDemo e-commerce site using **Python** and **pytest**.  

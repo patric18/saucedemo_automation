@@ -1,11 +1,12 @@
 import time
-
+import allure
 from pages.login_page import LoginPage
 import pytest
 from utils.data import USER, PASSWORD, INVALID_USERS, LOCKED_USER, PERFORMANCE_USER, PROBLEM_USERS
 
 class TestLogin:
 
+    @allure.tittle("Login with valid credentials")
     def test_login_valid(self,driver):
         login = LoginPage(driver)
         login.open()
