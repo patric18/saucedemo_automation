@@ -28,22 +28,26 @@ class CartPage(BasePage):
         return len(self.driver.find_elements(*self.CART_ITEMS))
 
     def go_to_checkout(self):
-        # 1. Wait for cart page to load
         self.wait_for_cart_loaded()
 
-        # 2. Wait for checkout button to be clickable
         checkout_btn = WebDriverWait(self.driver, 15).until(
             EC.element_to_be_clickable(self.CHECKOUT_BTN)
         )
 
-        # 3. Click checkout
-        checkout_btn.click()
+        # 🔥 scroll into view (important!)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", checkout_btn)
 
-        # 4. Wait until step one page is loaded
+        # 🔥 safe click (JS fallback)
+        try:
+            checkout_btn.click()
+        except:
+            self.driver.execute_script("arguments[0].click();", checkout_btn)
+
+        # 🔥 wait for real page load (NOT just URL)
         WebDriverWait(self.driver, 15).until(
-            lambda d: "checkout-step-one" in d.current_url
+            EC.visibility_of_element_located(self.STEP_ONE_CONTAINER)
         )
-
+        
     def is_cart_empty(self):
         self.wait_for_cart_loaded()
         return len(self.driver.find_elements(*self.CART_ITEMS)) == 0
