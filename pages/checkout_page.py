@@ -27,44 +27,31 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, firstname, lastname, postalcode):
-        fields = [
-            (self.FIRST_NAME, firstname),
-            (self.LAST_NAME, lastname),
-            (self.POSTAL_CODE, postalcode),
-        ]
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.FIRST_NAME)
+        ).clear()
+        self.driver.find_element(*self.FIRST_NAME).send_keys(firstname)
 
-        for locator, value in fields:
-            field = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(locator)
-            )
-            field.clear()
-            field.click()
-            field.send_keys(value)
+        self.driver.find_element(*self.LAST_NAME).clear()
+        self.driver.find_element(*self.LAST_NAME).send_keys(lastname)
 
-            # 🔥 force JS to register input
-            self.driver.execute_script("arguments[0].blur();", field)
+        self.driver.find_element(*self.POSTAL_CODE).clear()
+        self.driver.find_element(*self.POSTAL_CODE).send_keys(postalcode)
 
     def continue_checkout(self, wait_for_step_two=True):
-        # use LAST field to submit form
-        postal = WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(self.POSTAL_CODE)
+        # wait until button is truly clickable
+        continue_btn = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
 
-        # 🔥 submit form via ENTER (more reliable than click)
-        postal.send_keys(Keys.ENTER)
+        # 🔥 NORMAL click FIRST (not JS)
+        continue_btn.click()
 
         if wait_for_step_two:
             WebDriverWait(self.driver, 10).until(
-                lambda d: (
-                    "checkout-step-two" in d.current_url or
-                    d.find_elements(By.CLASS_NAME, "error-message-container")
-                )
+                lambda d: "checkout-step-two" in d.current_url
             )
-
-            if "checkout-step-two" not in self.driver.current_url:
-                raise Exception(
-                    f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
-                )
+                    
 
     def finish(self):
         self.click(self.FINISH_BTN)
