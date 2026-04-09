@@ -27,64 +27,42 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, firstname, lastname, postalcode):
-        fields = [
-            ("FIRST", self.FIRST_NAME, firstname),
-            ("LAST", self.LAST_NAME, lastname),
-            ("CODE", self.POSTAL_CODE, postalcode),
-        ]
-
-        for label, locator, value in fields:
-            field = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(locator)
+        # petarede way: JS + input events, wait na każdy input
+        for locator, value, name in [
+            (self.FIRSTNAME_INPUT, firstname, "FIRST"),
+            (self.LASTNAME_INPUT, lastname, "LAST"),
+            (self.POSTALCODE_INPUT, postalcode, "CODE"),
+        ]:
+            input_field = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(locator)
             )
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});", field
-            )
-            field.click()
-            field.clear()
+            self.driver.execute_script("""
+                arguments[0].focus();
+                arguments[0].value = arguments[1];
+                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+            """, input_field, value)
 
-            if value:
-                field.send_keys(value)
-                # JS fallback
-                if field.get_attribute("value") != value:
-                    self.driver.execute_script(
-                        "arguments[0].value = arguments[1];", field, value
-                    )
-
-            # 🔍 Poczekaj aż value będzie widoczne w DOM
+            # czekamy aż wartość inputu będzie faktycznie w DOM
             WebDriverWait(self.driver, 2).until(
-                lambda d: field.get_attribute("value") == value
+                lambda d: input_field.get_attribute('value') == value
             )
-
-            actual = field.get_attribute("value")
-            print(f"{label} -> expected: '{value}' | actual: '{actual}'")
+            print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(self.CONTINUE_BTN)
+            EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
-
-        # Poczekaj 0.1s na stabilizację inputów
-        time.sleep(0.1)
-
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", continue_btn
-        )
-        time.sleep(0.1)
-
+        # scroll i JS click
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
             WebDriverWait(self.driver, 10).until(
-                lambda d: (
-                    "checkout-step-two" in d.current_url or
-                    d.find_elements(By.CLASS_NAME, "error-message-container")
-                )
+                lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
             )
             if "checkout-step-two" not in self.driver.current_url:
-                raise Exception(
-                    f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
-             )
+                raise Exception(f"Did not navigate to Step Two. Current URL: {self.driver.current_url}")
+             
     def finish(self):
         self.click(self.FINISH_BTN)
 
