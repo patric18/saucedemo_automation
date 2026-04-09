@@ -1,4 +1,4 @@
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -15,49 +15,37 @@ class InventoryPage(BasePage):
 
     def add_products(self, count: int):
         added = 0
-        # pobierz już dodane produkty
-        existing_badge = self.driver.find_elements(By.CLASS_NAME, "shopping_cart_badge")
-        already_in_cart = int(existing_badge[0].text) if existing_badge else 0
-        print(f"[DEBUG] Chcemy dodać {count} produktów. Razem na stronie: {already_in_cart}")
-
-        products = self.driver.find_elements(By.CLASS_NAME, "inventory_item")
-        for product in products:
-            if added >= count:
-                break
-
-            name = product.find_element(By.CLASS_NAME, "inventory_item_name").text
-            button = product.find_element(By.TAG_NAME, "button")
-            # ignoruj jeśli już w koszyku
-            if button.text.lower() in ("remove", "added"):
-                print(f"[DEBUG] Produkt '{name}' już w koszyku, pomijamy.")
-                continue
-
-            print(f"[DEBUG] Produkt: {name} | przycisk: {button.text}")
-            button.click()
-            added += 1
-            print(f"[DEBUG] Kliknięto 'Add to cart'. Dodano {added} produktów.")
-
-            # czekamy na badge
+        while added < count:
             try:
-                WebDriverWait(self.driver, 15).until(
-                    lambda d: (
-                        (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
-                        and int(badge[0].text) == already_in_cart + added
-                    )
-                )
-                print(f"[DEBUG] Koszyk odzwierciedla {already_in_cart + added} produktów.")
-            except TimeoutException:
-                timestamp = int(time.time())
-                self.driver.save_screenshot(f"debug_inventory_{timestamp}.png")
-                print(f"[ERROR] Timeout przy oczekiwaniu na badge koszyka! Dodano {added} produktów.")
-                # dodatkowo backup: weryfikacja DOM koszyka
-                cart_icon = self.driver.find_element(By.CLASS_NAME, "shopping_cart_link")
-                cart_icon.click()
-                time.sleep(1)
-                cart_items = self.driver.find_elements(By.CLASS_NAME, "cart_item")
-                print(f"[DEBUG] Produkty w koszyku według DOM: {len(cart_items)}")
-                # wracamy na inventory
-                self.driver.back()
+                products = self.driver.find_elements(By.CLASS_NAME, "inventory_item")
+                for product in products:
+                    # odśwież element w każdej iteracji
+                    try:
+                        name = product.find_element(By.CLASS_NAME, "inventory_item_name").text
+                        button = product.find_element(By.TAG_NAME, "button")
+                    except Exception:
+                        continue  # element zniknął, spróbujemy w kolejnej iteracji
+
+                    if button.text.lower() in ("remove", "added"):
+                        continue  # pomijamy już dodane
+
+                    button.click()
+                    added += 1
+
+                    # czekamy na badge
+                    try:
+                        WebDriverWait(self.driver, 10).until(
+                            lambda d: (
+                                (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
+                                and int(badge[0].text) >= added
+                            )
+                        )
+                    except TimeoutException:
+                        print(f"[WARN] Timeout badge po dodaniu {added} produktów, spróbujemy dalej")
+                    if added >= count:
+                        break
+            except StaleElementReferenceException:
+                continue  # jeśli cała lista się przeterminowała, odświeżymy w kolejnej iteracji
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
