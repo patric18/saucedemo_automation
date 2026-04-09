@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
 
 class CheckoutPage(BasePage):
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
@@ -26,54 +25,32 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
 
-    def _type(self, element, value):
-        print("---- DEBUG START ----")
-        print("DISPLAYED:", element.is_displayed())
-        print("ENABLED:", element.is_enabled())
-        print("TAG:", element.tag_name)
-
-        wait = WebDriverWait(self.driver, 10)
-
-        # scroll + klik (pewny focus)
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        wait.until(EC.element_to_be_clickable(element))
-    
-        element.click()
-        print("AFTER CLICK - ACTIVE ELEMENT:",
-        self.driver.switch_to.active_element.get_attribute("id"))
-        element.clear()
-
-        # 🔥 wymuszenie focus + real typing
-        ActionChains(self.driver).move_to_element(element).click().perform()
-        element.send_keys(value)
-
-        print("AFTER SEND_KEYS VALUE:",
-        element.get_attribute("value"))
-
-        # 🔥 czekaj aż faktycznie się wpisze
-        wait.until(lambda d: element.get_attribute("value") == value) 
-        time.sleep(1)
-
-        print("FINAL VALUE:", element.get_attribute("value"))
-        print("---- DEBUG END ----")   
-
     def fill_form(self, firstname, lastname, postalcode):
         wait = WebDriverWait(self.driver, 10)
 
-        first = wait.until(EC.visibility_of_element_located(self.FIRST_NAME))
-        last = wait.until(EC.visibility_of_element_located(self.LAST_NAME))
-        code = wait.until(EC.visibility_of_element_located(self.POSTAL_CODE))
+        first = wait.until(EC.presence_of_element_located(self.FIRST_NAME))
+        last = wait.until(EC.presence_of_element_located(self.LAST_NAME))
+        code = wait.until(EC.presence_of_element_located(self.POSTAL_CODE))
 
         # 🔥 FIRST NAME
-        self._type(first, firstname)
+        first.clear()
+        first.send_keys(firstname)
+
+        wait.until(lambda d: first.get_attribute("value") == firstname)
 
         # 🔥 LAST NAME
-        self._type(last, lastname)
+        last.clear()
+        last.send_keys(lastname)
+
+        wait.until(lambda d: last.get_attribute("value") == lastname)
 
         # 🔥 POSTAL CODE
-        self._type(code, postalcode)
+        code.clear()
+        code.send_keys(postalcode)
 
-        print("VALUES AFTER INPUT:",
+        wait.until(lambda d: code.get_attribute("value") == postalcode)
+
+        print("VALUES:", 
             first.get_attribute("value"),
             last.get_attribute("value"),
             code.get_attribute("value"))
