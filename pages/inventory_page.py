@@ -12,24 +12,9 @@ class InventoryPage(BasePage):
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count: int = 1):
-        added = 0
-
-        while added < count:
-            buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
-
-            for btn in buttons:
-                if added >= count:
-                    break
-
-                # sprawdzamy czy to nadal "Add to cart"
-                if btn.text.strip().lower() == "add to cart":
-                    btn.click()
-                    added += 1
-
-                    # opcjonalnie: mały wait aż zmieni się na REMOVE
-                    WebDriverWait(self.driver, 5).until(
-                        lambda d: btn.text.strip().lower() == "remove"
-                    )
+        buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
+        for btn in buttons[:count]:
+            btn.click()
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
