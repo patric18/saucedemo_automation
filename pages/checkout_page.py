@@ -35,15 +35,17 @@ class CheckoutPage(BasePage):
 
         for label, locator, value in fields:
             field = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(locator)
+                EC.element_to_be_clickable(locator)
             )
 
+            # 🔥 kluczowe
+            field.click()
             field.clear()
 
-            if value:  # 🔥 nie wysyłamy pustych wartości
+            if value:
                 field.send_keys(value)
 
-            # 🔍 DEBUG – zawsze pokazuj realny stan inputa
+            # 🔍 DEBUG
             actual_value = field.get_attribute("value")
             print(f"{label} -> expected: '{value}' | actual: '{actual_value}'")
 
