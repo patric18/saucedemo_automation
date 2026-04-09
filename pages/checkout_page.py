@@ -64,13 +64,13 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
-        # wait 0.2 sec for stabilizating inputs - this time sleep repaired test..
-        time.sleep(0.2)
+        # Poczekaj 0.2s na stabilizację inputów
+        time.sleep(0.4)
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", continue_btn
         )
-        time.sleep(0.1)
+        time.sleep(0.3)
 
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
@@ -84,8 +84,7 @@ class CheckoutPage(BasePage):
             if "checkout-step-two" not in self.driver.current_url:
                 raise Exception(
                     f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
-                )
-
+             )
     def finish(self):
         self.click(self.FINISH_BTN)
 
