@@ -64,7 +64,7 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
-        # wait 0.2 sec for stabilizating inputs - this time.sleep repaired test..
+        # wait 0.2 sec for stabilizating inputs - this time sleep repaired test..
         time.sleep(0.2)
 
         self.driver.execute_script(
