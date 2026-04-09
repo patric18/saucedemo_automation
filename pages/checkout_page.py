@@ -15,6 +15,7 @@ class CheckoutPage(BasePage):
     CONTINUE_BTN = (By.ID, "continue")
     FINISH_BTN = (By.ID, "finish")
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
+    ERROR_CONTAINER = (By.CSS_SELECTOR, "[data-test='error']")
 
     def wait_for_step_one(self, timeout=45):
         WebDriverWait(self.driver, timeout).until(
