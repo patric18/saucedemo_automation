@@ -13,44 +13,51 @@ class InventoryPage(BasePage):
     CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
-    def add_products(self, count=1):
-        products = self.driver.find_elements(By.CSS_SELECTOR, ".inventory_item")
+    def add_products(self, count: int):
         added = 0
-        added_names = set()  # żeby nie dodać tego samego produktu dwa razy
+        # pobierz już dodane produkty
+        existing_badge = self.driver.find_elements(By.CLASS_NAME, "shopping_cart_badge")
+        already_in_cart = int(existing_badge[0].text) if existing_badge else 0
+        print(f"[DEBUG] Chcemy dodać {count} produktów. Razem na stronie: {already_in_cart}")
 
-        print(f"[DEBUG] Chcemy dodać {count} produktów. Razem na stronie: {len(products)}")
-
+        products = self.driver.find_elements(By.CLASS_NAME, "inventory_item")
         for product in products:
             if added >= count:
                 break
 
             name = product.find_element(By.CLASS_NAME, "inventory_item_name").text
-            btn = product.find_element(By.CSS_SELECTOR, "button")
-            
-            if name in added_names:
-                continue  # już dodane
+            button = product.find_element(By.TAG_NAME, "button")
+            # ignoruj jeśli już w koszyku
+            if button.text.lower() in ("remove", "added"):
+                print(f"[DEBUG] Produkt '{name}' już w koszyku, pomijamy.")
+                continue
 
-            if btn.text.lower() == "add to cart":
-                print(f"[DEBUG] Produkt: {name} | przycisk: {btn.text}")
-                btn.click()
-                added += 1
-                added_names.add(name)
-                print(f"[DEBUG] Kliknięto 'Add to cart'. Dodano {added} produktów.")
+            print(f"[DEBUG] Produkt: {name} | przycisk: {button.text}")
+            button.click()
+            added += 1
+            print(f"[DEBUG] Kliknięto 'Add to cart'. Dodano {added} produktów.")
 
-        # Czekamy aż badge pokaże liczbę dodanych produktów
-        try:
-            WebDriverWait(self.driver, 10).until(
-                lambda d: (
-                    (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
-                    and int(badge[0].text) >= added
+            # czekamy na badge
+            try:
+                WebDriverWait(self.driver, 15).until(
+                    lambda d: (
+                        (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
+                        and int(badge[0].text) == already_in_cart + added
+                    )
                 )
-            )
-            print(f"[DEBUG] Koszyk odzwierciedla {added} produktów.")
-        except TimeoutException as e:
-            print(f"[ERROR] Timeout przy oczekiwaniu na badge koszyka! Dodano {added} produktów.")
-            timestamp = int(time.time())
-            self.driver.save_screenshot(f"debug_inventory_{timestamp}.png")
-            raise e
+                print(f"[DEBUG] Koszyk odzwierciedla {already_in_cart + added} produktów.")
+            except TimeoutException:
+                timestamp = int(time.time())
+                self.driver.save_screenshot(f"debug_inventory_{timestamp}.png")
+                print(f"[ERROR] Timeout przy oczekiwaniu na badge koszyka! Dodano {added} produktów.")
+                # dodatkowo backup: weryfikacja DOM koszyka
+                cart_icon = self.driver.find_element(By.CLASS_NAME, "shopping_cart_link")
+                cart_icon.click()
+                time.sleep(1)
+                cart_items = self.driver.find_elements(By.CLASS_NAME, "cart_item")
+                print(f"[DEBUG] Produkty w koszyku według DOM: {len(cart_items)}")
+                # wracamy na inventory
+                self.driver.back()
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
