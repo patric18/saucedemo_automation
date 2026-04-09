@@ -102,18 +102,21 @@ class InventoryPage(BasePage):
     def is_loaded(self):
         return "inventory" in self.driver.current_url
     
-    def wait_for_cart_count(self, count, timeout=15):
-        """Czeka aż licznik koszyka pokaże expected count."""
+    def wait_for_cart_count(self, expected_count, timeout=15):
+        """Czeka aż licznik koszyka pojawi się i pokaże expected_count."""
+        def check_count(driver):
+            try:
+                badge = driver.find_element(*self.CART_BADGE)
+                return int(badge.text) == expected_count
+            except:
+                return False
+
         try:
-            WebDriverWait(self.driver, timeout).until(
-                lambda d: self.get_cart_badge_count() == count
-            )
+            WebDriverWait(self.driver, timeout).until(check_count)
         except:
-            print(f"[WARN] Timeout badge po dodaniu {count} produktów, spróbujemy dalej")
-            # można spróbować odświeżyć element i ponownie sprawdzić
-            WebDriverWait(self.driver, timeout).until(
-                lambda d: self.get_cart_badge_count() == count
-            )
+            print(f"[WARN] Timeout badge po dodaniu {expected_count} produktów, próbuję ponownie...")
+            # retry raz
+            WebDriverWait(self.driver, timeout).until(check_count)
 
     def get_cart_badge_count(self):
         try:

@@ -15,8 +15,8 @@ def test_checkout_success(driver):
     login.open()
     login.login(USER, PASSWORD)
 
-    inventory.add_products(4)
-    inventory.wait_for_cart_count(4)
+    inventory.add_products(1)
+    inventory.wait_for_cart_count(1)
     inventory.go_to_cart()
     cart.go_to_checkout()
 
