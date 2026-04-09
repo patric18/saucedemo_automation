@@ -26,41 +26,39 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, firstname, lastname, postalcode):
-        for locator, value, name in [
+        fields = [
             (self.FIRST_NAME, firstname, "FIRST"),
             (self.LAST_NAME, lastname, "LAST"),
             (self.POSTAL_CODE, postalcode, "CODE"),
-        ]:
+        ]
+
+        for locator, value, name in fields:
             input_field = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(locator)
+                EC.element_to_be_clickable(locator)
             )
-            self.driver.execute_script("""
-                arguments[0].focus();
-                arguments[0].value = arguments[1];
-                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-            """, input_field, value)
 
-            # czekamy aż wartość inputu będzie faktycznie w DOM
+            input_field.clear()
+            input_field.send_keys(value)
+
+            # WAŻNE: upewniamy się, że wartość faktycznie została wpisana
             WebDriverWait(self.driver, 5).until(
-                lambda d: input_field.get_attribute('value') == value
+                lambda d: input_field.get_attribute("value") == value
             )
-            print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
 
-        # mały delay, żeby JS zdążył przetworzyć inputy
-        time.sleep(0.2)
+            print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
-        self.driver.execute_script("arguments[0].click();", continue_btn)
+
+        continue_btn.click()  # ← NORMALNY CLICK
 
         if wait_for_step_two:
             WebDriverWait(self.driver, 10).until(
                 lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
             )
+
             if "checkout-step-two" not in self.driver.current_url:
                 raise Exception(f"Did not navigate to Step Two. Current URL: {self.driver.current_url}")
 
