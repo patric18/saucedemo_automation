@@ -25,6 +25,31 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
 
+    def _force_type(self, element, value):
+        # 🔥 1. NORMALNE WPISYWANIE
+        element.clear()
+        element.send_keys(value)
+
+        # 🔥 2. jeśli nie weszło → fallback JS + React hack
+        current = element.get_attribute("value")
+
+        if current != value:
+            self.driver.execute_script("""
+                const el = arguments[0];
+                const val = arguments[1];
+
+                const nativeInputValueSetter =
+                    Object.getOwnPropertyDescriptor(
+                        window.HTMLInputElement.prototype,
+                        "value"
+                    ).set;
+
+                nativeInputValueSetter.call(el, val);
+
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+            """, element, value)
+
+    ### BUGGED FRONTEND!!!
     def fill_form(self, firstname, lastname, postalcode):
         wait = WebDriverWait(self.driver, 10)
 
@@ -32,42 +57,26 @@ class CheckoutPage(BasePage):
         last = wait.until(EC.presence_of_element_located(self.LAST_NAME))
         code = wait.until(EC.presence_of_element_located(self.POSTAL_CODE))
 
-        # 🔥 SET VALUE VIA JS (OMIJA BUG)
-        self.driver.execute_script("arguments[0].value = arguments[1]", first, firstname)
-        self.driver.execute_script("arguments[0].value = arguments[1]", last, lastname)
-        self.driver.execute_script("arguments[0].value = arguments[1]", code, postalcode)
+        self._force_type(first, firstname)
+        self._force_type(last, lastname)
+        self._force_type(code, postalcode)
 
-        # 🔥 TRIGGER CHANGE EVENT (WAŻNE!)
-        self.driver.execute_script("""
-            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-        """, first)
-
-        self.driver.execute_script("""
-            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-        """, last)
-
-        self.driver.execute_script("""
-            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-        """, code)
-
-        print("VALUES AFTER JS:",
+        print("VALUES FINAL:",
             first.get_attribute("value"),
             last.get_attribute("value"),
             code.get_attribute("value"))
 
     def continue_checkout(self, wait_for_step_two=True):
-        continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.CONTINUE_BTN)
+        btn = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(self.CONTINUE_BUTTON)
         )
 
-        continue_btn.click()
+        # 🔥 zamiast click()
+        self.driver.execute_script("arguments[0].click()", btn)
 
         if wait_for_step_two:
             WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
+                EC.url_contains("checkout-step-two")
             )
 
     def finish(self):
