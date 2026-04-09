@@ -12,6 +12,12 @@ def test_checkout_success(driver):
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
 
+    # wyczyść koszyk / localStorage
+    driver.get("https://www.saucedemo.com/cart.html")
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+    driver.get("https://www.saucedemo.com/")
+
     login.open()
     login.login(USER, PASSWORD)
 
@@ -34,6 +40,12 @@ def test_checkout_missing_data(driver, firstname, lastname, postalcode, error):
     inventory = InventoryPage(driver)
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
+
+    # wyczyść koszyk / localStorage
+    driver.get("https://www.saucedemo.com/cart.html")
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+    driver.get("https://www.saucedemo.com/")
 
     login.open()
     login.login(USER, PASSWORD)
