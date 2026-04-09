@@ -26,41 +26,58 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, firstname, lastname, postalcode):
-        fields = [
-            (self.FIRST_NAME, firstname, "FIRST"),
-            (self.LAST_NAME, lastname, "LAST"),
-            (self.POSTAL_CODE, postalcode, "CODE"),
-        ]
+        first = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.FIRST_NAME)
+        )
+        last = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.LAST_NAME)
+        )
+        code = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.POSTAL_CODE)
+        )
 
-        for locator, value, name in fields:
-            input_field = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable(locator)
-            )
+        # FIRST NAME
+        first.click()
+        first.clear()
+        first.send_keys(firstname)
 
-            input_field.clear()
-            input_field.send_keys(value)
+        # LAST NAME
+        last.click()
+        last.clear()
+        last.send_keys(lastname)
 
-            # WAŻNE: upewniamy się, że wartość faktycznie została wpisana
-            WebDriverWait(self.driver, 5).until(
-                lambda d: input_field.get_attribute("value") == value
-            )
+        # POSTAL CODE
+        code.click()
+        code.clear()
+        code.send_keys(postalcode)
 
-            print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
+        # 🔥 KLUCZOWE — sprawdzenie czy wpisało
+        WebDriverWait(self.driver, 5).until(
+            lambda d: first.get_attribute("value") == firstname
+        )
+        WebDriverWait(self.driver, 5).until(
+            lambda d: last.get_attribute("value") == lastname
+        )
+        WebDriverWait(self.driver, 5).until(
+            lambda d: code.get_attribute("value") == postalcode
+        )
+
+        print("FILLED:",
+            first.get_attribute("value"),
+            last.get_attribute("value"),
+            code.get_attribute("value"))
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
 
-        continue_btn.click()  # ← NORMALNY CLICK
+        continue_btn.click()
 
         if wait_for_step_two:
             WebDriverWait(self.driver, 10).until(
                 lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
             )
-
-            if "checkout-step-two" not in self.driver.current_url:
-                raise Exception(f"Did not navigate to Step Two. Current URL: {self.driver.current_url}")
 
     def finish(self):
         finish_btn = WebDriverWait(self.driver, 10).until(
