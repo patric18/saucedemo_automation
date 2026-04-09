@@ -29,16 +29,24 @@ class CheckoutPage(BasePage):
         self.type(self.POSTAL_CODE, code)
 
     def continue_checkout(self, wait_for_step_two=True):
-        btn = WebDriverWait(self.driver, 10).until(
+        # Wait for button to be clickable
+        continue_btn = WebDriverWait(self.driver, 5).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
-        self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
-        import time; time.sleep(0.3)
-        self.driver.execute_script("arguments[0].click();", btn)
+
+        # Force scroll + JS click
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'}); arguments[0].click();",
+            continue_btn
+        )
 
         if wait_for_step_two:
+            # Wait for Step Two
             WebDriverWait(self.driver, 10).until(
                 lambda d: "checkout-step-two" in d.current_url
+            )
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
             )
 
     def finish(self):
