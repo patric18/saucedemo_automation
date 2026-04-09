@@ -43,7 +43,7 @@ def test_checkout_missing_data(driver, firstname, lastname, postalcode, error):
     inventory.go_to_cart()
     cart.go_to_checkout()
 
-    checkout.fill_form(firstname, lastname, postalcode)
+    checkout.fill_form(*INVALID_CHECKOUT)
     time.sleep(0.3)  # krótka pauza dla JS
     checkout.continue_checkout(wait_for_step_two=False)
 
