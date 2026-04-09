@@ -45,22 +45,15 @@ class CheckoutPage(BasePage):
             self.driver.execute_script("arguments[0].blur();", field)
 
     def continue_checkout(self, wait_for_step_two=True):
-        continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(self.CONTINUE_BTN)
+        # use LAST field to submit form
+        postal = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.POSTALCODE_INPUT)
         )
 
-        # scroll
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", continue_btn
-        )
-
-        time.sleep(0.3)
-
-        # JS click
-        self.driver.execute_script("arguments[0].click();", continue_btn)
+        # 🔥 submit form via ENTER (more reliable than click)
+        postal.send_keys(Keys.ENTER)
 
         if wait_for_step_two:
-            # 🔥 wait for either success OR error
             WebDriverWait(self.driver, 10).until(
                 lambda d: (
                     "checkout-step-two" in d.current_url or
@@ -68,7 +61,6 @@ class CheckoutPage(BasePage):
                 )
             )
 
-            # if still on step one → raise meaningful error
             if "checkout-step-two" not in self.driver.current_url:
                 raise Exception(
                     f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
