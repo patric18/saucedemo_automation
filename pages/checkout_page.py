@@ -37,16 +37,16 @@ class CheckoutPage(BasePage):
             field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
             )
-            time.sleep(0.5)
             field.clear()
-            time.sleep(0.5)
-            field.click()
-            time.sleep(0.5)
             field.send_keys(value)
-            time.sleep(0.5)
 
-            # 🔥 force JS to register input
-            self.driver.execute_script("arguments[0].blur();", field)
+            WebDriverWait(self.driver, 5).until(
+                lambda d: field.get_attribute("value") == value
+            )
+
+            print("FIRST", self.driver.find_element(*self.FIRST_NAME).get_attribute("value"))
+            print("LAST", self.driver.find_element(*self.LAST_NAME).get_attribute("value"))
+            print("CODE", self.driver.find_element(*self.POSTAL_CODE).get_attribute("value"))
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
