@@ -37,8 +37,6 @@ class CheckoutPage(BasePage):
             field = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located(locator)
             )
-
-            # scroll + focus
             self.driver.execute_script(
                 "arguments[0].scrollIntoView({block: 'center'});", field
             )
@@ -47,16 +45,17 @@ class CheckoutPage(BasePage):
 
             if value:
                 field.send_keys(value)
-
-                # 🔥 HARD FIX — jeśli Selenium nie wpisało
+                # JS fallback
                 if field.get_attribute("value") != value:
                     self.driver.execute_script(
-                        "arguments[0].value = arguments[1];",
-                        field,
-                        value
+                        "arguments[0].value = arguments[1];", field, value
                     )
 
-            # 🔍 DEBUG
+            # 🔍 Poczekaj aż value będzie widoczne w DOM
+            WebDriverWait(self.driver, 2).until(
+                lambda d: field.get_attribute("value") == value
+            )
+
             actual = field.get_attribute("value")
             print(f"{label} -> expected: '{value}' | actual: '{actual}'")
 
@@ -65,26 +64,23 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
-        # scroll
+        # Poczekaj 0.2s na stabilizację inputów
+        time.sleep(0.2)
+
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", continue_btn
         )
+        time.sleep(0.1)
 
-        time.sleep(0.3)
-
-        # JS click
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
-            # 🔥 wait for either success OR error
             WebDriverWait(self.driver, 10).until(
                 lambda d: (
                     "checkout-step-two" in d.current_url or
                     d.find_elements(By.CLASS_NAME, "error-message-container")
                 )
             )
-
-            # if still on step one → raise meaningful error
             if "checkout-step-two" not in self.driver.current_url:
                 raise Exception(
                     f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
