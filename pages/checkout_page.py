@@ -28,9 +28,13 @@ class CheckoutPage(BasePage):
 
     def fill_form(self, firstname, lastname, postalcode):
         fields = [
+            time.sleep(1)
             (self.FIRST_NAME, firstname),
+            time.sleep(1)
             (self.LAST_NAME, lastname),
+            time.sleep(1)
             (self.POSTAL_CODE, postalcode),
+            time.sleep(1)
         ]
 
         for locator, value in fields:
