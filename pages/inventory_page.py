@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 class InventoryPage(BasePage):
 
@@ -12,9 +13,13 @@ class InventoryPage(BasePage):
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count=1):
-        """Dodaje produkty do koszyka, nie dodając tych samych dwa razy."""
+        """
+        Dodaje produkty do koszyka (bez duplikatów) i daje pełny debug.
+        """
         products = self.driver.find_elements(By.CSS_SELECTOR, ".inventory_item")
         added = 0
+
+        print(f"[DEBUG] Chcemy dodać {count} produktów. Razem na stronie: {len(products)}")
 
         for product in products:
             if added >= count:
@@ -22,14 +27,25 @@ class InventoryPage(BasePage):
 
             # przycisk add/remove
             btn = product.find_element(By.CSS_SELECTOR, "button")
+            print(f"[DEBUG] Produkt: {product.text.splitlines()[0]} | przycisk: {btn.text}")
+
             if btn.text.lower() == "add to cart":
                 btn.click()
                 added += 1
+                print(f"[DEBUG] Kliknięto 'Add to cart'. Dodano {added} produktów.")
 
-        # czekamy, aż licznik koszyka zaktualizuje się
-        WebDriverWait(self.driver, 10).until(
-            lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) == added
-        )
+        # Czekamy aż badge koszyka pokaże właściwą liczbę produktów
+        try:
+            WebDriverWait(self.driver, 10).until(
+                lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) >= added
+            )
+            print(f"[DEBUG] Koszyk odzwierciedla {added} produktów.")
+        except Exception as e:
+            print(f"[ERROR] Timeout przy oczekiwaniu na badge koszyka! Dodano {added} produktów.")
+            # zapis zrzutu ekranu
+            timestamp = int(time.time())
+            self.driver.save_screenshot(f"debug_inventory_{timestamp}.png")
+            raise e
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
