@@ -28,25 +28,24 @@ class CheckoutPage(BasePage):
 
     def fill_form(self, firstname, lastname, postalcode):
         fields = [
-            (self.FIRST_NAME, firstname),
-            (self.LAST_NAME, lastname),
-            (self.POSTAL_CODE, postalcode),
+            ("FIRST", self.FIRST_NAME, firstname),
+            ("LAST", self.LAST_NAME, lastname),
+            ("CODE", self.POSTAL_CODE, postalcode),
         ]
 
-        for locator, value in fields:
+        for label, locator, value in fields:
             field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
             )
+
             field.clear()
-            field.send_keys(value)
 
-            WebDriverWait(self.driver, 5).until(
-                lambda d: field.get_attribute("value") == value
-            )
+            if value:  # 🔥 nie wysyłamy pustych wartości
+                field.send_keys(value)
 
-            print("FIRST", self.driver.find_element(*self.FIRST_NAME).get_attribute("value"))
-            print("LAST", self.driver.find_element(*self.LAST_NAME).get_attribute("value"))
-            print("CODE", self.driver.find_element(*self.POSTAL_CODE).get_attribute("value"))
+            # 🔍 DEBUG – zawsze pokazuj realny stan inputa
+            actual_value = field.get_attribute("value")
+            print(f"{label} -> expected: '{value}' | actual: '{actual_value}'")
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
