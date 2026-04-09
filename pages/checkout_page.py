@@ -68,7 +68,7 @@ class CheckoutPage(BasePage):
 
     def continue_checkout(self, wait_for_step_two=True):
         btn = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(self.CONTINUE_BUTTON)
+            EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
         # 🔥 zamiast click()
