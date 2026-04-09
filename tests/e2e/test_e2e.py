@@ -47,6 +47,7 @@ def test_e2e_flow(driver):
     checkout.fill_form(*VALID_CHECKOUT)
     print("Checkout form values:", *VALID_CHECKOUT)
     checkout.continue_checkout()
+    print(driver.page_source)
     print("URL AFTER CLICK:", driver.current_url)
     assert checkout.is_step_two_loaded()
 
