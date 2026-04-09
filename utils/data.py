@@ -23,9 +23,9 @@ LOCKED_USER = "locked_out_user"
 
 INVALID_CHECKOUT = [
     ("","Test","00-001", "Error: First Name is required"),
-    ("Jan","","00-001", "Error: First Name is required"),
-    ("Jan","Test","", "Error: First Name is required"),
-    ("","","", "Error: Postal Code is required"),
+    ("Jan","","00-001", "Error: Last Name is required"),
+    ("Jan","Test","", "Error: Postal Code is required"),
+    ("","","", "Error: First Name is required"),
 ]
 
 VALID_CHECKOUT = ("Jan", "Test", "00-001")
