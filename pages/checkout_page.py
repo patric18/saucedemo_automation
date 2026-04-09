@@ -47,7 +47,7 @@ class CheckoutPage(BasePage):
     def continue_checkout(self, wait_for_step_two=True):
         # use LAST field to submit form
         postal = WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(self.POSTALCODE_INPUT)
+            EC.visibility_of_element_located(self.POSTAL_CODE)
         )
 
         # 🔥 submit form via ENTER (more reliable than click)
