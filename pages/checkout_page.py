@@ -26,10 +26,23 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
 
-    def fill_form(self, first, last, code):
-        self.type(self.FIRST_NAME, first)
-        self.type(self.LAST_NAME, last)
-        self.type(self.POSTAL_CODE, code)
+    def fill_form(self, firstname, lastname, postalcode):
+        fields = [
+            (self.FIRSTNAME_INPUT, firstname),
+            (self.LASTNAME_INPUT, lastname),
+            (self.POSTALCODE_INPUT, postalcode),
+        ]
+
+        for locator, value in fields:
+            field = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(locator)
+            )
+            field.clear()
+            field.click()
+            field.send_keys(value)
+
+            # 🔥 force JS to register input
+            self.driver.execute_script("arguments[0].blur();", field)
 
     def continue_checkout(self, wait_for_step_two=True):
         # Wait for the Continue button to be present
