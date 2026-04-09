@@ -38,13 +38,17 @@ class CheckoutPage(BasePage):
                 arguments[0].focus();
                 arguments[0].value = arguments[1];
                 arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
             """, input_field, value)
 
-            # czekamy aż wartość inputu będzie faktycznie w DOM (max 5s)
+            # czekamy aż wartość inputu będzie faktycznie w DOM
             WebDriverWait(self.driver, 5).until(
                 lambda d: input_field.get_attribute('value') == value
             )
             print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
+
+        # mały delay, żeby JS zdążył przetworzyć inputy
+        time.sleep(0.2)
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(

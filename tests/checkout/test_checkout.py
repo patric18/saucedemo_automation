@@ -23,8 +23,6 @@ def test_checkout_success(driver):
     checkout.wait_for_step_one()
     checkout.fill_form(*VALID_CHECKOUT)
     checkout.continue_checkout()
-    time.sleep(5)
-    checkout.continue_checkout()
     checkout.wait_for_step_two()
     checkout.finish()
 
