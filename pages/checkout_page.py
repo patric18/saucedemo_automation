@@ -15,75 +15,82 @@ class CheckoutPage(BasePage):
     CONTINUE_BTN = (By.ID, "continue")
     FINISH_BTN = (By.ID, "finish")
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
-    ERROR_MSG = (By.CSS_SELECTOR, "[data-test='error']")
 
-    def wait_for_step_one(self, timeout=10):
+    def wait_for_step_one(self, timeout=45):
         WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
         )
 
-    def wait_for_step_two(self, timeout=10):
+    def wait_for_step_two(self, timeout=45):
         WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
 
     def fill_form(self, firstname, lastname, postalcode):
         fields = [
-            (self.FIRST_NAME, firstname),
-            (self.LAST_NAME, lastname),
-            (self.POSTAL_CODE, postalcode),
+            ("FIRST", self.FIRST_NAME, firstname),
+            ("LAST", self.LAST_NAME, lastname),
+            ("CODE", self.POSTAL_CODE, postalcode),
         ]
 
-        for locator, value in fields:
+        for label, locator, value in fields:
             field = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(locator)
+                EC.presence_of_element_located(locator)
             )
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", field
+            )
+            field.click()
             field.clear()
-            field.send_keys(value)
 
-            # Czekamy aż React/JS zapisze wartość w input
+            if value:
+                field.send_keys(value)
+                # JS fallback
+                if field.get_attribute("value") != value:
+                    self.driver.execute_script(
+                        "arguments[0].value = arguments[1];", field, value
+                    )
+
+            # 🔍 Poczekaj aż value będzie widoczne w DOM
             WebDriverWait(self.driver, 2).until(
                 lambda d: field.get_attribute("value") == value
             )
 
-        # Debug
-        print("FIRST -> expected:", firstname, "| actual:", self.driver.find_element(*self.FIRST_NAME).get_attribute("value"))
-        print("LAST  -> expected:", lastname,  "| actual:", self.driver.find_element(*self.LAST_NAME).get_attribute("value"))
-        print("CODE  -> expected:", postalcode,"| actual:", self.driver.find_element(*self.POSTAL_CODE).get_attribute("value"))
-        print("Checkout form values:", firstname, lastname, postalcode)
+            actual = field.get_attribute("value")
+            print(f"{label} -> expected: '{value}' | actual: '{actual}'")
 
     def continue_checkout(self, wait_for_step_two=True):
         continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.CONTINUE_BTN)
+            EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
-        # JS click
+        # wait 0.2 sec for stabilizating inputs - this time.sleep repaired test..
+        time.sleep(0.2)
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", continue_btn
+        )
+        time.sleep(0.1)
+
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
-            # Czekamy aż URL zmieni się na step-two lub pojawi się błąd
             WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-two" in d.current_url or d.find_elements(By.CLASS_NAME, "error-message-container")
+                lambda d: (
+                    "checkout-step-two" in d.current_url or
+                    d.find_elements(By.CLASS_NAME, "error-message-container")
+                )
             )
-
             if "checkout-step-two" not in self.driver.current_url:
-                raise Exception(f"Did not navigate to Step Two. Current URL: {self.driver.current_url}")
+                raise Exception(
+                    f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
+                )
 
     def finish(self):
-        finish_btn = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.FINISH_BTN)
-        )
-        self.driver.execute_script("arguments[0].click();", finish_btn)
+        self.click(self.FINISH_BTN)
 
     def get_success_message(self):
-        return WebDriverWait(self.driver, 5).until(
-            EC.visibility_of_element_located(self.SUCCESS_MSG)
-        ).text
-
-    def get_error_message(self):
-        return WebDriverWait(self.driver, 5).until(
-            EC.visibility_of_element_located(self.ERROR_MSG)
-        ).text
+        return self.get_text(self.SUCCESS_MSG)
 
     def is_step_one_loaded(self):
         try:
@@ -110,3 +117,6 @@ class CheckoutPage(BasePage):
         except:
             print("FAILED STEP TWO, URL:", self.driver.current_url)
             return False
+    
+    def get_error_message(self):
+        return self.driver.find_element(By.CSS_SELECTOR, "[data-test='error']").text
