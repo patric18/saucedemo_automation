@@ -4,6 +4,7 @@ from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 from utils.data import USER, PASSWORD, INVALID_CHECKOUT, VALID_CHECKOUT
 import pytest
+import time
 
 def test_checkout_success(driver):
     login = LoginPage(driver)
@@ -20,7 +21,8 @@ def test_checkout_success(driver):
 
     checkout.fill_form(*VALID_CHECKOUT)
     print("Checkout form values:", *VALID_CHECKOUT)
-    checkout.continue_checkout()
+    time.sleep(1)
+    checkout.continue_checkout(wait_for_step_two=True)
     checkout.finish()
 
     assert "THANK YOU" in checkout.get_success_message().upper()
