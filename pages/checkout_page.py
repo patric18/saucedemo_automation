@@ -28,22 +28,22 @@ class CheckoutPage(BasePage):
 
     def fill_form(self, firstname, lastname, postalcode):
         fields = [
-            time.sleep(1)
             (self.FIRST_NAME, firstname),
-            time.sleep(1)
             (self.LAST_NAME, lastname),
-            time.sleep(1)
             (self.POSTAL_CODE, postalcode),
-            time.sleep(1)
         ]
 
         for locator, value in fields:
             field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
             )
+            time.sleep(0.5)
             field.clear()
+            time.sleep(0.5)
             field.click()
+            time.sleep(0.5)
             field.send_keys(value)
+            time.sleep(0.5)
 
             # 🔥 force JS to register input
             self.driver.execute_script("arguments[0].blur();", field)
