@@ -21,8 +21,7 @@ def test_checkout_success(driver):
 
     checkout.fill_form(*VALID_CHECKOUT)
     print("Checkout form values:", *VALID_CHECKOUT)
-    time.sleep(1)
-    checkout.continue_checkout(wait_for_step_two=True)
+    checkout.continue_checkout()
     checkout.finish()
 
     assert "THANK YOU" in checkout.get_success_message().upper()
