@@ -27,6 +27,11 @@ class CheckoutPage(BasePage):
         )
 
     def _type(self, element, value):
+        print("---- DEBUG START ----")
+        print("DISPLAYED:", element.is_displayed())
+        print("ENABLED:", element.is_enabled())
+        print("TAG:", element.tag_name)
+
         wait = WebDriverWait(self.driver, 10)
 
         # scroll + klik (pewny focus)
@@ -34,14 +39,23 @@ class CheckoutPage(BasePage):
         wait.until(EC.element_to_be_clickable(element))
     
         element.click()
+        print("AFTER CLICK - ACTIVE ELEMENT:",
+        self.driver.switch_to.active_element.get_attribute("id"))
         element.clear()
 
         # 🔥 wymuszenie focus + real typing
         ActionChains(self.driver).move_to_element(element).click().perform()
         element.send_keys(value)
 
+        print("AFTER SEND_KEYS VALUE:",
+        element.get_attribute("value"))
+
         # 🔥 czekaj aż faktycznie się wpisze
-        wait.until(lambda d: element.get_attribute("value") == value)    
+        wait.until(lambda d: element.get_attribute("value") == value) 
+        time.sleep(1)
+
+        print("FINAL VALUE:", element.get_attribute("value"))
+        print("---- DEBUG END ----")   
 
     def fill_form(self, firstname, lastname, postalcode):
         wait = WebDriverWait(self.driver, 10)
