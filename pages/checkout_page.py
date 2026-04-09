@@ -32,25 +32,28 @@ class CheckoutPage(BasePage):
         last = wait.until(EC.presence_of_element_located(self.LAST_NAME))
         code = wait.until(EC.presence_of_element_located(self.POSTAL_CODE))
 
-        # 🔥 FIRST NAME
-        first.clear()
-        first.send_keys(firstname)
+        # 🔥 SET VALUE VIA JS (OMIJA BUG)
+        self.driver.execute_script("arguments[0].value = arguments[1]", first, firstname)
+        self.driver.execute_script("arguments[0].value = arguments[1]", last, lastname)
+        self.driver.execute_script("arguments[0].value = arguments[1]", code, postalcode)
 
-        wait.until(lambda d: first.get_attribute("value") == firstname)
+        # 🔥 TRIGGER CHANGE EVENT (WAŻNE!)
+        self.driver.execute_script("""
+            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+        """, first)
 
-        # 🔥 LAST NAME
-        last.clear()
-        last.send_keys(lastname)
+        self.driver.execute_script("""
+            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+        """, last)
 
-        wait.until(lambda d: last.get_attribute("value") == lastname)
+        self.driver.execute_script("""
+            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+        """, code)
 
-        # 🔥 POSTAL CODE
-        code.clear()
-        code.send_keys(postalcode)
-
-        wait.until(lambda d: code.get_attribute("value") == postalcode)
-
-        print("VALUES:", 
+        print("VALUES AFTER JS:",
             first.get_attribute("value"),
             last.get_attribute("value"),
             code.get_attribute("value"))
