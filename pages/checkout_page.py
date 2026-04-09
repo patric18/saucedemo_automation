@@ -29,9 +29,9 @@ class CheckoutPage(BasePage):
     def fill_form(self, firstname, lastname, postalcode):
         # petarede way: JS + input events, wait na każdy input
         for locator, value, name in [
-            (self.FIRSTNAME_INPUT, firstname, "FIRST"),
-            (self.LASTNAME_INPUT, lastname, "LAST"),
-            (self.POSTALCODE_INPUT, postalcode, "CODE"),
+            (self.FIRST_NAME, firstname, "FIRST"),
+            (self.LAST_NAME, lastname, "LAST"),
+            (self.POSTAL_CODE, postalcode, "CODE"),
         ]:
             input_field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
