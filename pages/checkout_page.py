@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 class CheckoutPage(BasePage):
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
@@ -29,24 +30,29 @@ class CheckoutPage(BasePage):
         self.type(self.POSTAL_CODE, code)
 
     def continue_checkout(self, wait_for_step_two=True):
-        # Wait for button to be clickable
+        # Force blur on inputs
+        for field_id in ["first-name", "last-name", "postal-code"]:
+            field = self.driver.find_element(By.ID, field_id)
+            field.send_keys(Keys.TAB)
+
+        # Wait for continue button
         continue_btn = WebDriverWait(self.driver, 5).until(
-            EC.element_to_be_clickable(self.CONTINUE_BTN)
+            EC.element_to_be_clickable((By.ID, "continue"))
         )
 
-        # Force scroll + JS click
+        # JS click
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'}); arguments[0].click();",
             continue_btn
         )
 
         if wait_for_step_two:
-            # Wait for Step Two
+            # Wait for Step Two URL + container
             WebDriverWait(self.driver, 10).until(
                 lambda d: "checkout-step-two" in d.current_url
             )
             WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
+                EC.presence_of_element_located((By.ID, "checkout_summary_container"))
             )
 
     def finish(self):
