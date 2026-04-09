@@ -47,7 +47,7 @@ class CheckoutPage(BasePage):
     def continue_checkout(self, wait_for_step_two=True):
         # Wait for the Continue button to be present
         continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(self.CONTINUE_BTN)
+            EC.visibility_of_element_located(self.CONTINUE_BTN)
         )
 
         # Scroll into view
