@@ -45,28 +45,34 @@ class CheckoutPage(BasePage):
             self.driver.execute_script("arguments[0].blur();", field)
 
     def continue_checkout(self, wait_for_step_two=True):
-        # Wait for the Continue button to be present
         continue_btn = WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(self.CONTINUE_BTN)
+            EC.presence_of_element_located(self.CONTINUE_BTN)
         )
 
-        # Scroll into view
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
+        # scroll
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", continue_btn
+        )
 
-        # Tiny pause for stability (especially in CI)
         time.sleep(0.3)
 
-        # HARD click via JS
+        # JS click
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
-            # Wait for Step Two page to load
+            # 🔥 wait for either success OR error
             WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-two" in d.current_url
+                lambda d: (
+                    "checkout-step-two" in d.current_url or
+                    d.find_elements(By.CLASS_NAME, "error-message-container")
+                )
             )
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
-            )
+
+            # if still on step one → raise meaningful error
+            if "checkout-step-two" not in self.driver.current_url:
+                raise Exception(
+                    f"Did not navigate to Step Two. Current URL: {self.driver.current_url}"
+                )
 
     def finish(self):
         self.click(self.FINISH_BTN)
