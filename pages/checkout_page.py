@@ -15,12 +15,12 @@ class CheckoutPage(BasePage):
     SUCCESS_MSG = (By.CLASS_NAME, "complete-header")
     ERROR_CONTAINER = (By.CSS_SELECTOR, "[data-test='error']")
 
-    def wait_for_step_one(self, timeout=45):
+    def wait_for_step_one(self, timeout=10):
         WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
         )
 
-    def wait_for_step_two(self, timeout=45):
+    def wait_for_step_two(self, timeout=10):
         WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
@@ -34,17 +34,14 @@ class CheckoutPage(BasePage):
             input_field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
             )
-            input_field.clear()
-            input_field.send_keys(value)
-
-            # dodatkowo wymuś event input/change, jeśli JS strony wymaga
             self.driver.execute_script("""
+                arguments[0].focus();
+                arguments[0].value = arguments[1];
                 arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-            """, input_field)
+            """, input_field, value)
 
-            # czekamy aż wartość inputu będzie faktycznie ustawiona
-            WebDriverWait(self.driver, 10).until(
+            # czekamy aż wartość inputu będzie faktycznie w DOM (max 5s)
+            WebDriverWait(self.driver, 5).until(
                 lambda d: input_field.get_attribute('value') == value
             )
             print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
@@ -53,16 +50,11 @@ class CheckoutPage(BasePage):
         continue_btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
-
-        # scroll i JS click
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
-
-        # upewnij się, że przycisk aktywny
-        WebDriverWait(self.driver, 10).until(lambda d: continue_btn.is_enabled())
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
-            WebDriverWait(self.driver, 15).until(
+            WebDriverWait(self.driver, 10).until(
                 lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
             )
             if "checkout-step-two" not in self.driver.current_url:
@@ -72,20 +64,16 @@ class CheckoutPage(BasePage):
         finish_btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.FINISH_BTN)
         )
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", finish_btn)
-        finish_btn.click()
+        self.driver.execute_script("arguments[0].click();", finish_btn)
 
     def get_success_message(self):
-        return self.driver.find_element(*self.SUCCESS_MSG).text
+        return WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located(self.SUCCESS_MSG)
+        ).text
 
     def is_step_one_loaded(self):
         try:
-            WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-one" in d.current_url
-            )
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.STEP_ONE_CONTAINER)
-            )
+            self.wait_for_step_one()
             return True
         except:
             print("FAILED STEP ONE, URL:", self.driver.current_url)
@@ -93,19 +81,13 @@ class CheckoutPage(BasePage):
 
     def is_step_two_loaded(self):
         try:
-            WebDriverWait(self.driver, 10).until(
-                lambda d: "checkout-step-two" in d.current_url
-            )
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
-            )
+            self.wait_for_step_two()
             return True
         except:
             print("FAILED STEP TWO, URL:", self.driver.current_url)
             return False
-    
+
     def get_error_message(self):
-        try:
-            return self.driver.find_element(*self.ERROR_CONTAINER).text
-        except:
-            return ""
+        return WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located(self.ERROR_CONTAINER)
+        ).text
