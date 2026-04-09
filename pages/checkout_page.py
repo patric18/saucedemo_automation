@@ -1,10 +1,8 @@
 import time
-
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 class CheckoutPage(BasePage):
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
@@ -28,7 +26,6 @@ class CheckoutPage(BasePage):
         )
 
     def fill_form(self, firstname, lastname, postalcode):
-        # petarede way: JS + input events, wait na każdy input
         for locator, value, name in [
             (self.FIRST_NAME, firstname, "FIRST"),
             (self.LAST_NAME, lastname, "LAST"),
@@ -37,13 +34,16 @@ class CheckoutPage(BasePage):
             input_field = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(locator)
             )
-            self.driver.execute_script("""
-                arguments[0].focus();
-                arguments[0].value = arguments[1];
-                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-            """, input_field, value)
+            input_field.clear()
+            input_field.send_keys(value)
 
-            # czekamy aż wartość inputu będzie faktycznie w DOM
+            # dodatkowo wymuś event input/change, jeśli JS strony wymaga
+            self.driver.execute_script("""
+                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+            """, input_field)
+
+            # czekamy aż wartość inputu będzie faktycznie ustawiona
             WebDriverWait(self.driver, 2).until(
                 lambda d: input_field.get_attribute('value') == value
             )
@@ -53,8 +53,12 @@ class CheckoutPage(BasePage):
         continue_btn = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.CONTINUE_BTN)
         )
+
         # scroll i JS click
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
+
+        # upewnij się, że przycisk aktywny
+        WebDriverWait(self.driver, 2).until(lambda d: continue_btn.is_enabled())
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
@@ -63,12 +67,16 @@ class CheckoutPage(BasePage):
             )
             if "checkout-step-two" not in self.driver.current_url:
                 raise Exception(f"Did not navigate to Step Two. Current URL: {self.driver.current_url}")
-             
+
     def finish(self):
-        self.click(self.FINISH_BTN)
+        finish_btn = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.FINISH_BTN)
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", finish_btn)
+        finish_btn.click()
 
     def get_success_message(self):
-        return self.get_text(self.SUCCESS_MSG)
+        return self.driver.find_element(*self.SUCCESS_MSG).text
 
     def is_step_one_loaded(self):
         try:
@@ -97,4 +105,7 @@ class CheckoutPage(BasePage):
             return False
     
     def get_error_message(self):
-        return self.driver.find_element(By.CSS_SELECTOR, "[data-test='error']").text
+        try:
+            return self.driver.find_element(*self.ERROR_CONTAINER).text
+        except:
+            return ""
