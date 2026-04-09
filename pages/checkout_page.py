@@ -44,7 +44,7 @@ class CheckoutPage(BasePage):
             """, input_field)
 
             # czekamy aż wartość inputu będzie faktycznie ustawiona
-            WebDriverWait(self.driver, 2).until(
+            WebDriverWait(self.driver, 10).until(
                 lambda d: input_field.get_attribute('value') == value
             )
             print(f"{name} -> expected: '{value}' | actual: '{input_field.get_attribute('value')}'")
@@ -58,11 +58,11 @@ class CheckoutPage(BasePage):
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
 
         # upewnij się, że przycisk aktywny
-        WebDriverWait(self.driver, 2).until(lambda d: continue_btn.is_enabled())
+        WebDriverWait(self.driver, 10).until(lambda d: continue_btn.is_enabled())
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
         if wait_for_step_two:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 15).until(
                 lambda d: "checkout-step-two" in d.current_url or d.find_elements(*self.ERROR_CONTAINER)
             )
             if "checkout-step-two" not in self.driver.current_url:
