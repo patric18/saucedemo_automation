@@ -6,22 +6,19 @@ from utils.data import USER, PASSWORD, VALID_CHECKOUT
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 def test_e2e_flow(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
-    
     cart = CartPage(driver)
     checkout = CheckoutPage(driver)
 
-    # wyczyść koszyk / localStorage
+    # Wyczyść koszyk / localStorage
     driver.get("https://www.saucedemo.com/cart.html")
     driver.execute_script("window.localStorage.clear();")
     driver.execute_script("window.sessionStorage.clear();")
     driver.get("https://www.saucedemo.com/")
-
-    #assert inventory.get_cart_count() == 0
-    
 
     # Login
     login.open()
@@ -39,20 +36,23 @@ def test_e2e_flow(driver):
 
     # Checkout
     cart.go_to_checkout()
-
     print("URL AFTER CLICK:", driver.current_url)
-
     assert checkout.is_step_one_loaded()
 
+    # Wypełnij formularz checkout
     checkout.fill_form(*VALID_CHECKOUT)
+    time.sleep(0.3)  # krótka pauza dla JS
     print("Checkout form values:", *VALID_CHECKOUT)
+
+    # Kontynuuj do Step Two
     checkout.continue_checkout()
-    print(driver.page_source)
-    print("URL AFTER CLICK:", driver.current_url)
+    print("URL AFTER CONTINUE:", driver.current_url)
     assert checkout.is_step_two_loaded()
 
+    # Zakończ zamówienie
     checkout.finish()
-    print("URL AFTER CLICK:", driver.current_url)
+    print("URL AFTER FINISH:", driver.current_url)
+
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CLASS_NAME, "complete-header"))
     )
