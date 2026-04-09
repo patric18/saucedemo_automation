@@ -19,6 +19,7 @@ def test_checkout_success(driver):
     cart.go_to_checkout()
 
     checkout.fill_form(*VALID_CHECKOUT)
+    print("Checkout form values:", *VALID_CHECKOUT)
     checkout.continue_checkout()
     checkout.finish()
 
