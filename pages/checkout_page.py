@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 class CheckoutPage(BasePage):
     STEP_ONE_CONTAINER = (By.ID, "checkout_info_container")
@@ -25,44 +26,40 @@ class CheckoutPage(BasePage):
             EC.presence_of_element_located(self.STEP_TWO_CONTAINER)
         )
 
+    def _type(self, element, value):
+        wait = WebDriverWait(self.driver, 10)
+
+        # scroll + klik (pewny focus)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        wait.until(EC.element_to_be_clickable(element))
+    
+        element.click()
+        element.clear()
+
+        # 🔥 wymuszenie focus + real typing
+        ActionChains(self.driver).move_to_element(element).click().perform()
+        element.send_keys(value)
+
+        # 🔥 czekaj aż faktycznie się wpisze
+        wait.until(lambda d: element.get_attribute("value") == value)    
+
     def fill_form(self, firstname, lastname, postalcode):
-        first = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.FIRST_NAME)
-        )
-        last = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.LAST_NAME)
-        )
-        code = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.POSTAL_CODE)
-        )
+        wait = WebDriverWait(self.driver, 10)
 
-        # FIRST NAME
-        first.click()
-        first.clear()
-        first.send_keys(firstname)
+        first = wait.until(EC.visibility_of_element_located(self.FIRST_NAME))
+        last = wait.until(EC.visibility_of_element_located(self.LAST_NAME))
+        code = wait.until(EC.visibility_of_element_located(self.POSTAL_CODE))
 
-        # LAST NAME
-        last.click()
-        last.clear()
-        last.send_keys(lastname)
+        # 🔥 FIRST NAME
+        self._type(first, firstname)
 
-        # POSTAL CODE
-        code.click()
-        code.clear()
-        code.send_keys(postalcode)
+        # 🔥 LAST NAME
+        self._type(last, lastname)
 
-        # 🔥 KLUCZOWE — sprawdzenie czy wpisało
-        WebDriverWait(self.driver, 5).until(
-            lambda d: first.get_attribute("value") == firstname
-        )
-        WebDriverWait(self.driver, 5).until(
-            lambda d: last.get_attribute("value") == lastname
-        )
-        WebDriverWait(self.driver, 5).until(
-            lambda d: code.get_attribute("value") == postalcode
-        )
+        # 🔥 POSTAL CODE
+        self._type(code, postalcode)
 
-        print("FILLED:",
+        print("VALUES AFTER INPUT:",
             first.get_attribute("value"),
             last.get_attribute("value"),
             code.get_attribute("value"))
