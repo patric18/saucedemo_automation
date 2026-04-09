@@ -11,10 +11,25 @@ class InventoryPage(BasePage):
     CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
-    def add_products(self, count: int = 1):
-        buttons = self.driver.find_elements(*self.PRODUCT_ADD_BUTTONS)
-        for btn in buttons[:count]:
-            btn.click()
+    def add_products(self, count=1):
+        """Dodaje produkty do koszyka, nie dodając tych samych dwa razy."""
+        products = self.driver.find_elements(By.CSS_SELECTOR, ".inventory_item")
+        added = 0
+
+        for product in products:
+            if added >= count:
+                break
+
+            # przycisk add/remove
+            btn = product.find_element(By.CSS_SELECTOR, "button")
+            if btn.text.lower() == "add to cart":
+                btn.click()
+                added += 1
+
+        # czekamy, aż licznik koszyka zaktualizuje się
+        WebDriverWait(self.driver, 10).until(
+            lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) == added
+        )
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
