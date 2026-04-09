@@ -65,12 +65,12 @@ class CheckoutPage(BasePage):
         )
 
         # Poczekaj 0.2s na stabilizację inputów
-        time.sleep(0.4)
+        time.sleep(1)
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", continue_btn
         )
-        time.sleep(0.3)
+        time.sleep(1)
 
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
