@@ -4,7 +4,6 @@ from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 from utils.data import USER, PASSWORD, INVALID_CHECKOUT, VALID_CHECKOUT
 import pytest
-import time
 
 def test_checkout_success(driver):
     login = LoginPage(driver)
