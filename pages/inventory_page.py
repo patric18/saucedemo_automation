@@ -4,6 +4,7 @@ from pages.base_page import BasePage
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from selenium.common.exceptions import TimeoutException
 
 class InventoryPage(BasePage):
 
@@ -13,11 +14,9 @@ class InventoryPage(BasePage):
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count=1):
-        """
-        Dodaje produkty do koszyka (bez duplikatów) i daje pełny debug.
-        """
         products = self.driver.find_elements(By.CSS_SELECTOR, ".inventory_item")
         added = 0
+        added_names = set()  # żeby nie dodać tego samego produktu dwa razy
 
         print(f"[DEBUG] Chcemy dodać {count} produktów. Razem na stronie: {len(products)}")
 
@@ -25,24 +24,30 @@ class InventoryPage(BasePage):
             if added >= count:
                 break
 
-            # przycisk add/remove
+            name = product.find_element(By.CLASS_NAME, "inventory_item_name").text
             btn = product.find_element(By.CSS_SELECTOR, "button")
-            print(f"[DEBUG] Produkt: {product.text.splitlines()[0]} | przycisk: {btn.text}")
+            
+            if name in added_names:
+                continue  # już dodane
 
             if btn.text.lower() == "add to cart":
+                print(f"[DEBUG] Produkt: {name} | przycisk: {btn.text}")
                 btn.click()
                 added += 1
+                added_names.add(name)
                 print(f"[DEBUG] Kliknięto 'Add to cart'. Dodano {added} produktów.")
 
-        # Czekamy aż badge koszyka pokaże właściwą liczbę produktów
+        # Czekamy aż badge pokaże liczbę dodanych produktów
         try:
             WebDriverWait(self.driver, 10).until(
-                lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) >= added
+                lambda d: (
+                    (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
+                    and int(badge[0].text) >= added
+                )
             )
             print(f"[DEBUG] Koszyk odzwierciedla {added} produktów.")
-        except Exception as e:
+        except TimeoutException as e:
             print(f"[ERROR] Timeout przy oczekiwaniu na badge koszyka! Dodano {added} produktów.")
-            # zapis zrzutu ekranu
             timestamp = int(time.time())
             self.driver.save_screenshot(f"debug_inventory_{timestamp}.png")
             raise e
