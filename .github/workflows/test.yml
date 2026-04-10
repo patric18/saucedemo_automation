@@ -24,13 +24,17 @@ jobs:
 
     - name: Run tests with Allure
       run: |
-        pytest --alluredir=allure-results
+        pytest --alluredir=allure-results -q
 
     - name: Upload Allure results
       uses: actions/upload-artifact@v4
       with:
         name: allure-results
         path: allure-results
+    - name: Run tests fast
+      run: |
+        pytest -n auto --dist=loadscope 
+        pytest-xdist   
 
     #- name: Generate Allure Report
     #  with:
