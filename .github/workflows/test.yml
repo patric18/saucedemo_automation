@@ -64,8 +64,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y default-jre
         wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.39.0.tgz
-        tar -zxvf allure-2.27.0.tgz
-        sudo mv allure-2.27.0 /opt/allure
+        tar -xzf allure-2.39.0.tgz
+        sudo mv allure-2.39.0 /opt/allure
         sudo ln -s /opt/allure/bin/allure /usr/bin/allure
 
     - name: Generate Allure Report
