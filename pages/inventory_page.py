@@ -14,38 +14,17 @@ class InventoryPage(BasePage):
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count: int):
-        added = 0
-        while added < count:
-            try:
-                products = self.driver.find_elements(By.CLASS_NAME, "inventory_item")
-                for product in products:
-                    # odśwież element w każdej iteracji
-                    try:
-                        name = product.find_element(By.CLASS_NAME, "inventory_item_name").text
-                        button = product.find_element(By.TAG_NAME, "button")
-                    except Exception:
-                        continue  # element zniknął, spróbujemy w kolejnej iteracji
+        buttons = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".inventory_item button"))
+        )
 
-                    if button.text.lower() in ("remove", "added"):
-                        continue  # pomijamy już dodane
+        for i in range(count):
+            buttons[i].click()
 
-                    button.click()
-                    added += 1
-
-                    # czekamy na badge
-                    try:
-                        WebDriverWait(self.driver, 10).until(
-                            lambda d: (
-                                (badge := d.find_elements(By.CLASS_NAME, "shopping_cart_badge"))
-                                and int(badge[0].text) >= added
-                            )
-                        )
-                    except TimeoutException:
-                        print(f"[WARN] Timeout badge po dodaniu {added} produktów, spróbujemy dalej")
-                    if added >= count:
-                        break
-            except StaleElementReferenceException:
-                continue  # jeśli cała lista się przeterminowała, odświeżymy w kolejnej iteracji
+        # opcjonalnie: poczekaj na badge (raz, na końcu)
+        WebDriverWait(self.driver, 10).until(
+            lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) == count
+        )
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""
