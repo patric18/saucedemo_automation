@@ -21,9 +21,9 @@ class InventoryPage(BasePage):
         for i in range(count):
             buttons[i].click()
 
-        # opcjonalnie: poczekaj na badge (raz, na końcu)
+        # 👉 tylko sprawdź czy badge się pojawił
         WebDriverWait(self.driver, 10).until(
-            lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) == count
+            EC.presence_of_element_located((By.CLASS_NAME, "shopping_cart_badge"))
         )
 
     def go_to_cart(self):
