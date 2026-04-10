@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 #import prefs
 from selenium.webdriver.chrome.service import Service
 
-
+##
 """ Chrome setups 
 @pytest.fixture
 def driver():
