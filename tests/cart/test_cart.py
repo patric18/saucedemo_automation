@@ -16,6 +16,8 @@ def test_add_to_cart(driver):
 
     login.open()
     login.login(USER,PASSWORD)
+    inventory.wait_until_loaded()
+
 
     inventory.add_products(1)
     inventory.wait_for_cart_count(1)

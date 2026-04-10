@@ -20,6 +20,7 @@ def test_e2e_flow(driver):
 
     login.open()
     login.login(USER, PASSWORD)
+    inventory.wait_until_loaded()
     assert inventory.is_loaded()
 
     inventory.add_products(1)

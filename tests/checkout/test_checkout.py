@@ -20,6 +20,8 @@ def test_checkout_success(driver):
 
     login.open()
     login.login(USER, PASSWORD)
+    inventory.wait_until_loaded()
+
 
     inventory.add_products(1)
     inventory.wait_for_cart_count(1)
@@ -49,6 +51,8 @@ def test_checkout_missing_data(driver, firstname, lastname, postalcode, error):
 
     login.open()
     login.login(USER, PASSWORD)
+    inventory.wait_until_loaded()
+
 
     inventory.add_products(1)
     inventory.wait_for_cart_count(1)

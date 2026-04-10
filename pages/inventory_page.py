@@ -96,4 +96,8 @@ class InventoryPage(BasePage):
             return int(badge.text)
         except:
             return 0
-        
+    
+    def wait_until_loaded(self):
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "inventory_item"))
+        )
