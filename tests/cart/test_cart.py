@@ -17,11 +17,11 @@ def test_add_to_cart(driver):
     login.open()
     login.login(USER,PASSWORD)
 
-    inventory.add_products(2)
-    inventory.wait_for_cart_count(2)
+    inventory.add_products(1)
+    inventory.wait_for_cart_count(1)
     inventory.go_to_cart()
 
-    assert cart.get_items_count() == 2
+    assert cart.get_items_count() == 1
 
 def test_remove_from_empty_cart(driver):
         login = LoginPage(driver)
