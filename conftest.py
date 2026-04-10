@@ -46,7 +46,15 @@ def driver():
     
     yield driver
     driver.quit()
-    
+
+@pytest.fixture(autouse=True)
+def clean_state(driver):
+    driver.get("https://www.saucedemo.com/")
+    driver.delete_all_cookies()
+    driver.execute_script("window.localStorage.clear();")
+    driver.execute_script("window.sessionStorage.clear();")
+
+
 # screenshot on fail
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
@@ -55,9 +63,16 @@ def pytest_runtest_makereport(item, call):
 
     if report.when == "call" and report.failed:
         driver = item.funcargs.get("driver")
-
         if driver:
-            os.makedirs("screenshots", exist_ok=True)
-            file_name = f"{item.name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"
-            driver.save_screenshot(f"screenshots/{file_name}")
+            os.makedirs("artifacts", exist_ok=True)
+
+            name = f"{item.name}_{datetime.now().strftime('%H-%M-%S')}"
+
+            driver.save_screenshot(f"artifacts/{name}.png")
+
+            with open(f"artifacts/{name}.html", "w") as f:
+                f.write(driver.page_source)
+
+            with open(f"artifacts/{name}.txt", "w") as f:
+                f.write(driver.current_url)
 

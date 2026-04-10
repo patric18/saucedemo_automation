@@ -3,14 +3,13 @@ from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from utils.data import USER, PASSWORD
 from selenium.webdriver.common.by import By
+import pytest
 
-
+@pytest.mark.regression
 def test_inventory_items_have_full_data(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
-    cart = CartPage(driver)
 
-    
 
     login.open()
     login.login(USER,PASSWORD)
@@ -26,6 +25,7 @@ def test_inventory_items_have_full_data(driver):
         assert price.text.startswith("$")
         assert img.get_attribute("src") != ""
 
+@pytest.mark.regression
 def test_sorting(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)

@@ -18,27 +18,41 @@ jobs:
       with:
         python-version: '3.10'
 
+    - name: Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
 
-    - name: Run tests
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+
+    # =========================
+    # SMOKE (PR)
+    # =========================
+    - name: Run smoke tests
+      if: github.event_name == 'pull_request'
       run: |
-        pytest -n auto --dist=loadscope --alluredir=allure-results -q
+        pytest -m smoke -n auto --dist=loadscope \
+        --reruns 2 --reruns-delay 1 \
+        --alluredir=allure-results -q
+
+    # =========================
+    # FULL REGRESSION (MAIN)
+    # =========================
+    - name: Run full regression
+      if: github.ref == 'refs/heads/main'
+      run: |
+        pytest -m "not flaky" -n auto --dist=loadscope \
+        --reruns 2 --reruns-delay 1 \
+        --alluredir=allure-results -q
 
     - name: Upload Allure results
       uses: actions/upload-artifact@v4
       with:
         name: allure-results
         path: allure-results
-
-    #- name: Generate Allure Report
-    #  with:
-    #    allure_results: allure-results
-    #    allure_report: allure-report
-
-    #- name: Deploy report to GitHub Pages
-    #  uses: peaceiris/actions-gh-pages@v3
-    #  with:
-    #    github_token: ${{ secrets.GITHUB_TOKEN }}
-    #    publish_dir: allure-report
