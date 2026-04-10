@@ -5,7 +5,6 @@ from utils.data import USER, PASSWORD
 import pytest
 
 @pytest.mark.smoke
-@pytest.mark.flaky
 def test_add_to_cart(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
@@ -38,3 +37,13 @@ def test_remove_from_empty_cart(driver):
         cart.remove_all_products()
 
         assert cart.is_cart_empty()
+
+@pytest.mark.smoke
+def test_cart_page_loads(driver):
+    login = LoginPage(driver)
+    inventory = InventoryPage(driver)
+
+    login.open()
+    login.login(USER, PASSWORD)
+
+    assert inventory.is_loaded()

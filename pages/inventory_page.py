@@ -14,13 +14,20 @@ class InventoryPage(BasePage):
     PRODUCT_ADD_BUTTONS = (By.CLASS_NAME, "btn_inventory")
 
     def add_products(self, count: int):
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "inventory_item"))
-        )
+        added = 0
 
-        for i in range(count):
-            buttons = self.driver.find_elements(By.CSS_SELECTOR, ".inventory_item button")
-            buttons[i].click()
+        buttons = self.driver.find_elements(By.CLASS_NAME, "btn_inventory")
+
+        for btn in buttons:
+            if added >= count:
+                break
+
+            self.driver.execute_script("arguments[0].click();", btn)
+            added += 1
+
+            WebDriverWait(self.driver, 10).until(
+                lambda d: int(d.find_element(By.CLASS_NAME, "shopping_cart_badge").text) == added
+            )
 
     def go_to_cart(self):
         """Click the cart icon. Waits for page ready and uses JS click to avoid timeouts."""

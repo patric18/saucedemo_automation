@@ -31,9 +31,12 @@ def driver():
     # Headless nowy tryb w Chrome >= 109
     options.add_argument("--headless=new")  
     options.add_argument("--disable-gpu")
+    options.add_argument("--log-level=3")
+    options.add_argument("--silent")
     options.add_argument("--window-size=1920,1080")  # rozmiar okna
-    options.add_argument("--no-sandbox")  # CI wymaga
-    options.add_argument("--disable-dev-shm-usage")  # CI docker
+    options.add_argument("--disable-logging")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
     options.add_argument("--disable-infobars")
     options.add_argument("--disable-extensions")
     

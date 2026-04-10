@@ -16,7 +16,7 @@ class TestLogin:
         assert login.is_logged_in()
 
 
-    
+    @pytest.mark.regression
     @pytest.mark.parametrize("username,password,error", INVALID_USERS)
     def test_login_invalid(self,driver,username,password,error):
         login = LoginPage(driver)

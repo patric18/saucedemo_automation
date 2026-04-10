@@ -6,8 +6,7 @@ from utils.data import USER, PASSWORD, INVALID_CHECKOUT, VALID_CHECKOUT
 import pytest
 import time
 
-@pytest.mark.regression
-@pytest.mark.flaky
+@pytest.mark.smoke
 def test_checkout_success(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
@@ -31,8 +30,8 @@ def test_checkout_success(driver):
     checkout.finish()
 
     assert "THANK YOU" in checkout.get_success_message().upper()
+
 @pytest.mark.regression
-@pytest.mark.flaky
 @pytest.mark.parametrize("firstname,lastname,postalcode,error", INVALID_CHECKOUT)
 def test_checkout_missing_data(driver, firstname, lastname, postalcode, error):
     login = LoginPage(driver)

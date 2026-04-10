@@ -10,49 +10,88 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # =========================
+    # 1. Checkout repo
+    # =========================
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    # =========================
+    # 2. Setup Python
+    # =========================
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Cache pip
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-
+    # =========================
+    # 3. Install dependencies
+    # =========================
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
 
-    - name: Setup Chrome
-      uses: browser-actions/setup-chrome@v1
+    # =========================
+    # 4. Install Chrome (needed for Selenium)
+    # =========================
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
 
     # =========================
-    # SMOKE (PR)
+    # 5. Run tests (SMOKE on PR, REGRESSION on main)
     # =========================
-    - name: Run smoke tests
+
+    - name: Run SMOKE tests (PR)
       if: github.event_name == 'pull_request'
       run: |
-        pytest -m smoke -n auto --dist=loadscope \
-        --reruns 2 --reruns-delay 1 \
-        --alluredir=allure-results -q
+        pytest -m smoke -n auto --alluredir=allure-results --reruns 2 --reruns-delay 1 -q
 
-    # =========================
-    # FULL REGRESSION (MAIN)
-    # =========================
-    - name: Run full regression
+    - name: Run REGRESSION tests (MAIN)
       if: github.ref == 'refs/heads/main'
       run: |
-        pytest -m "not flaky" -n auto --dist=loadscope \
-        --reruns 2 --reruns-delay 1 \
-        --alluredir=allure-results -q
+        pytest -m "regression and not flaky" -n auto --alluredir=allure-results --reruns 2 --reruns-delay 1 -q
 
+    # =========================
+    # 6. Generate Allure Report
+    # =========================
+    - name: Install Allure CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y default-jre
+        wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.27.0.tgz
+        tar -zxvf allure-2.27.0.tgz
+        sudo mv allure-2.27.0 /opt/allure
+        sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+    - name: Generate Allure Report
+      run: |
+        allure generate allure-results -o allure-report --clean
+
+    # =========================
+    # 7. Upload artifacts (backup)
+    # =========================
     - name: Upload Allure results
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: allure-results
         path: allure-results
+
+    - name: Upload Allure report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: allure-report
+        path: allure-report
+
+    # =========================
+    # 8. Deploy Allure Report to GitHub Pages
+    # =========================
+    - name: Deploy report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: allure-report

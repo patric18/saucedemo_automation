@@ -9,8 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 @pytest.mark.e2e
-@pytest.mark.smoke
-@pytest.mark.flaky
 def test_e2e_flow(driver):
     login = LoginPage(driver)
     inventory = InventoryPage(driver)
