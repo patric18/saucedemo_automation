@@ -1,9 +1,10 @@
-![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/patric18/saucedemo_automation/actions/workflows/test.yml/badge.svg)
+
 
 # SauceDemo Automation
 
 > Automated testing framework for the SauceDemo e-commerce site using **Python** and **pytest**.  
-> 22 fully functional end-to-end tests covering core user flows.
+> 24 fully functional end-to-end tests covering core user flows.
 
 ---
 
@@ -18,18 +19,21 @@ The framework follows the **Page Object Model**, keeping tests organized, reusab
 - ✅ Checkout process  
 - ✅ Error handling and validation scenarios  
 
-With **22 automated tests**, this suite ensures that the main flows of SauceDemo are thoroughly tested.
+With **24 automated tests**, this suite ensures that the main flows of SauceDemo are thoroughly tested.
 
 ---
 
 ## Features
 
-- 22 fully working end-to-end tests  
+- 24 fully working end-to-end tests  
 - Automatic **screenshots on test failure** (saved in `/screenshots`)  
 - Modular **Page Object Pattern** design  
 - Reusable fixtures for browser setup and teardown (`conftest.py`)  
 - Easy local execution with **pytest**  
 - Designed for maintainability and clarity  
+- Integrate CI/CD using GitHub Actions
+- Generate Allure or HTML reports for test results 
+- data-driven testing using parameterized tests
 
 ---
 
@@ -39,9 +43,6 @@ Screenshots for failed tests are automatically saved in /screenshots. Browser op
 
 
 ## Future Improvements
-Integrate CI/CD using GitHub Actions
-Generate Allure or HTML reports for test results
-Add cross-browser and data-driven testing using parameterized tests
 Expand test coverage for more edge cases
 
 ## Installation
