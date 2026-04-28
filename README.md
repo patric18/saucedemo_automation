@@ -1,5 +1,6 @@
 ![Tests](https://github.com/patric18/saucedemo_automation/actions/workflows/test.yml/badge.svg)
 
+![Raport Allure](allure-report.png)
 
 # SauceDemo Automation
 
