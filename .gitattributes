@@ -1,1 +1,7 @@
 * text=auto eol=lf
+
+allure-results/** linguist-vendored
+allure-report/** linguist-vendored
+*.json linguist-documentation
+*.html linguist-documentation
+*.xml linguist-documentation
